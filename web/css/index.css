@@ -1,0 +1,24 @@
+h1{
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+}
+.info{
+    width: 100%;
+    text-align: center;
+    padding: 2px;
+}
+.footer{
+   position:fixed;
+   left:0px;
+   bottom:0px;
+   height:30px;
+   width:100%;
+}
+.active{
+    *border-bottom: 2px solid black;
+    background-color: #1ba2f6;
+}
+
+
+
