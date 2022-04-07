@@ -10,18 +10,23 @@ menu_add.addEventListener("click",(e)=>{
 
 const menu_profile = document.getElementById("menu_profile");
 menu_profile.addEventListener("click",(e)=>{
+    e.preventDefault();
     toogleActiveMenu(e.target.id);
 })
 const menu_about = document.getElementById("menu_about");
 menu_about.addEventListener("click",(e)=>{
+    e.preventDefault();
     toogleActiveMenu(e.target.id);
+    hiddenMenu(e.target.id);
 })
 const menu_login = document.getElementById("menu_login");
-menu_login.addEventListener("click",(e)=>{
+menu_login.addEventListener("click", (e) => {
+    e.preventDefault();
     hiddenMenu(e.target.id);
 })
 const menu_logout = document.getElementById("menu_logout");
 menu_logout.addEventListener("click",(e)=>{
+    e.preventDefault();
     hiddenMenu(e.target.id);
 })
 const info = document.getElementById("info");
@@ -30,8 +35,8 @@ const info = document.getElementById("info");
 function toogleActiveMenu(selectedElementId){
     document.getElementById("info").innerHTML='';
     const listNavlinks = document.getElementsByClassName("nav-link");
-    for(let i=0; i< listNavlinks.length; i++){
-        console.log(listNavlinks[i].id);
+    for(let i = 0; i < listNavlinks.length; i++){
+        console.log('id='+listNavlinks[i].id);
         if(listNavlinks[i].id === selectedElementId){
            if(!listNavlinks[i].classList.contains("active")){
                listNavlinks[i].classList.add("active");
@@ -43,14 +48,20 @@ function toogleActiveMenu(selectedElementId){
         }
     }
 }
+
+
 function hiddenMenu(elementId){
     if(elementId === "menu_login"){
-        document.getElementById("menu_logout").style.display = 'blank';
-        document.getElementById("menu_login").style.display = 'none';
+        const menu_logout = document.getElementById("menu_logout");
+        menu_logout.classList.remove('d-none');
+        const menu_login = document.getElementById("menu_login")
+        menu_login.classList.add('d-none');
+        toogleActiveMenu("")
         document.getElementById("info").innerHTML='Вы вошли';
     }else if(elementId === "menu_logout"){
-        document.getElementById("menu_login").style.display = 'blank';
-        document.getElementById("menu_logout").style.display = 'none';
+        document.getElementById("menu_logout").classList.add('d-none');
+        document.getElementById("menu_login").classList.remove('d-none');
+        toogleActiveMenu("")
         document.getElementById("info").innerHTML='Вы вышли';
     }
    
