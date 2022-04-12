@@ -18,6 +18,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import sessian.UserFacade;
 
 /**
@@ -26,6 +27,7 @@ import sessian.UserFacade;
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {
     "/login",
+    "/logout",
     
 })
 public class LoginServlet extends HttpServlet {
@@ -54,25 +56,41 @@ public class LoginServlet extends HttpServlet {
                 String password = jo.getString("password","");
                 User authUser = userFacade.findByLogin(login);
                 if(authUser == null){
-                    job.add("info", "Нет такого пользователя").build();
+                    job.add("info", "Нет такого пользователя");
+                    job.add("auth", false);
                     try (PrintWriter out = response.getWriter()) {
-                        out.println(job.toString());
+                        out.println(job.build().toString());
                     }
                     break;
                 }
                 if(!password.equals(authUser.getPasword())){
-                    job.add("info", "Не совпадает пароль").build();
+                    job.add("info", "Не совпадает пароль");
+                    job.add("auth", false);
                     try (PrintWriter out = response.getWriter()) {
-                        out.println(job.toString());
+                        out.println(job.build().toString());
                     }
                     break;
                 }
-                job.add("info", "Вы вошли как "+authUser.getLogin()).build();
+                HttpSession session = request.getSession(true);
+                session.setAttribute("authUser", authUser);
+                job.add("info", "Вы вошли как "+authUser.getLogin());
+                job.add("auth",true);
+                job.add("token", session.getId());
                     try (PrintWriter out = response.getWriter()) {
-                        out.println(job.toString());
+                        out.println(job.build().toString());
                     }
                 break;
-            
+            case "/logout":
+                session = request.getSession(false);
+                if(session != null){
+                    session.invalidate();
+                    job.add("info", "Вы вышли");
+                    job.add("auth", false);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
+                }
+                break;
         }
         
     }

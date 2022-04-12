@@ -30,6 +30,7 @@ const menu_logout = document.getElementById("menu_logout");
 menu_logout.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleMenuLogin(e.target.id);
+    sendLogout();
 })
 const info = document.getElementById("info");
 
@@ -54,21 +55,27 @@ function toggleActiveMenu(selectedElementId){
 
 function toggleMenuLogin(elementId){
     if(elementId === "menu_login"){
-        const menu_logout = document.getElementById("menu_logout");
-        menu_logout.classList.remove('d-none');
-        const menu_login = document.getElementById("menu_login")
-        menu_login.classList.add('d-none');
-        toggleActiveMenu("");
-        showMenu();
-        document.getElementById("info").innerHTML='Вы вошли';
+        hiddenMenuLogin()  
     }else if(elementId === "menu_logout"){
-        document.getElementById("menu_logout").classList.add('d-none');
-        document.getElementById("menu_login").classList.remove('d-none');
-        toggleActiveMenu("");
-        hiddenMenu();
-        document.getElementById("info").innerHTML='Вы вышли';
+        showMenuLogin()
     }
    
+}
+function showMenuLogin(){
+    document.getElementById("menu_logout").classList.add('d-none');
+    document.getElementById("menu_login").classList.remove('d-none');
+    toggleActiveMenu("");
+    hiddenMenu();
+    document.getElementById("info").innerHTML='Вы вышли';
+}
+function hiddenMenuLogin(){
+    const menu_logout = document.getElementById("menu_logout");
+    menu_logout.classList.remove('d-none');
+    const menu_login = document.getElementById("menu_login")
+    menu_login.classList.add('d-none');
+    toggleActiveMenu("");
+    showMenu();
+    document.getElementById("info").innerHTML='Вы вошли';
 }
 function showMenu(){
     document.getElementById('menu_add').classList.remove('d-none');
@@ -101,25 +108,48 @@ function showLoginForm(){
     });
 }
 
-async function sendCredential(){
+function sendCredential(){
     const login = document.getElementById('login').value;
     const password = document.getElementById('password').value;
     const credential = {
         "login": login,
         "password": password
     };
-    let response = await fetch('login',{
+    let promise = fetch('login',{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset:utf8'
         },
         body: JSON.stringify(credential)
     });
-    if(response.ok){
-        let result =  response.json();
-        console.print(await result);
-        document.getElementById('info').innerHTML = result.info;
-    }else{
-        document.getElementById('info').innerHTML = "Ошибка запроса";
-    }
-}
+    promise.then(response=> response.json())
+       .then(response =>{
+           if(response.auth){
+               document.getElementById('info').innerHTML = response.info;
+               showMenu();
+               hiddenMenuLogin();
+           }else{
+               hiddenMenu();
+               showMenuLogin();
+               document.getElementById('info').innerHTML = "Ошибка авторизации";
+           }
+       })
+       .catch(
+            document.getElementById('info').innerHTML = "Ошибка запроса"
+       )
+ }
+ function sendLogout(){
+     let promise = fetch('logout', {
+         method: 'GET',
+     });
+     promise.then(response => response.json())
+             .then(response => {
+                 if(!response.auth){
+                    hiddenMenu();
+                    showMenuLogin();
+                    document.getElementById('info').innerHTML = "Вы вышли";
+                    showLoginForm();
+                 }
+     })
+     
+ }
