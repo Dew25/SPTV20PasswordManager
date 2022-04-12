@@ -1,38 +1,40 @@
-
 const menu_list_pages = document.getElementById("menu_list_pages");
 menu_list_pages.addEventListener("click",(e)=>{
-    toogleActiveMenu(e.target.id);
+    e.preventDefault();
+    toggleActiveMenu(e.target.id);
 })
 const menu_add = document.getElementById("menu_add");
 menu_add.addEventListener("click",(e)=>{
-    toogleActiveMenu(e.target.id);
+    e.preventDefault();
+    toggleActiveMenu(e.target.id);
 })
 
 const menu_profile = document.getElementById("menu_profile");
 menu_profile.addEventListener("click",(e)=>{
     e.preventDefault();
-    toogleActiveMenu(e.target.id);
+    toggleActiveMenu(e.target.id);
 })
 const menu_about = document.getElementById("menu_about");
 menu_about.addEventListener("click",(e)=>{
     e.preventDefault();
-    toogleActiveMenu(e.target.id);
-    hiddenMenu(e.target.id);
+    toggleActiveMenu(e.target.id);
+    toggleMenuLogin(e.target.id);
 })
 const menu_login = document.getElementById("menu_login");
 menu_login.addEventListener("click", (e) => {
     e.preventDefault();
-    hiddenMenu(e.target.id);
+    //toggleMenuLogin(e.target.id);
+    showLoginForm();
 })
 const menu_logout = document.getElementById("menu_logout");
 menu_logout.addEventListener("click",(e)=>{
     e.preventDefault();
-    hiddenMenu(e.target.id);
+    toggleMenuLogin(e.target.id);
 })
 const info = document.getElementById("info");
 
 
-function toogleActiveMenu(selectedElementId){
+function toggleActiveMenu(selectedElementId){
     document.getElementById("info").innerHTML='';
     const listNavlinks = document.getElementsByClassName("nav-link");
     for(let i = 0; i < listNavlinks.length; i++){
@@ -50,19 +52,74 @@ function toogleActiveMenu(selectedElementId){
 }
 
 
-function hiddenMenu(elementId){
+function toggleMenuLogin(elementId){
     if(elementId === "menu_login"){
         const menu_logout = document.getElementById("menu_logout");
         menu_logout.classList.remove('d-none');
         const menu_login = document.getElementById("menu_login")
         menu_login.classList.add('d-none');
-        toogleActiveMenu("")
+        toggleActiveMenu("");
+        showMenu();
         document.getElementById("info").innerHTML='Вы вошли';
     }else if(elementId === "menu_logout"){
         document.getElementById("menu_logout").classList.add('d-none');
         document.getElementById("menu_login").classList.remove('d-none');
-        toogleActiveMenu("")
+        toggleActiveMenu("");
+        hiddenMenu();
         document.getElementById("info").innerHTML='Вы вышли';
     }
    
+}
+function showMenu(){
+    document.getElementById('menu_add').classList.remove('d-none');
+    document.getElementById('menu_profile').classList.remove('d-none');
+}
+function hiddenMenu(){
+    document.getElementById('menu_add').classList.add('d-none');
+    document.getElementById('menu_profile').classList.add('d-none');
+}
+function showLoginForm(){
+    const content = document.getElementById('content');
+    content.innerHTML = `<div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
+                            <h3 class="card-header text-center">Авторизация</h3>
+                            <div class="card-body">
+                              <div class="form-group">
+                                <label for="login" class="form-label mt-4">Логин</label>
+                                <input type="text" class="form-control" id="login" placeholder="Логин">
+                              </div>
+                              <div class="form-group">
+                                <label for="password" class="form-label mt-4">Пароль</label>
+                                <input type="password" class="form-control" id="password" placeholder="password">
+                              </div>
+                            </div>
+                            <button id="btnLogin" type="submit" class="btn btn-primary m-3">Войти</button>
+                        </div>`;
+    const btnLogin = document.getElementById('btnLogin');
+    btnLogin.addEventListener('click', (e)=>{
+        e.preventDefault();
+        sendCredential();
+    });
+}
+
+async function sendCredential(){
+    const login = document.getElementById('login').value;
+    const password = document.getElementById('password').value;
+    const credential = {
+        "login": login,
+        "password": password
+    };
+    let response = await fetch('login',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset:utf8'
+        },
+        body: JSON.stringify(credential)
+    });
+    if(response.ok){
+        let result =  response.json();
+        console.print(await result);
+        document.getElementById('info').innerHTML = result.info;
+    }else{
+        document.getElementById('info').innerHTML = "Ошибка запроса";
+    }
 }
