@@ -24,7 +24,7 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String login;
-    private String pasword;
+    private String password;
     private String salt;
     private String phone;
     private String firstname;
@@ -49,12 +49,12 @@ public class User implements Serializable {
         this.login = login;
     }
 
-    public String getPasword() {
-        return pasword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasword(String pasword) {
-        this.pasword = pasword;
+    public void setPassword(String pasword) {
+        this.password = pasword;
     }
 
     public String getSalt() {
@@ -94,7 +94,7 @@ public class User implements Serializable {
         int hash = 7;
         hash = 19 * hash + Objects.hashCode(this.id);
         hash = 19 * hash + Objects.hashCode(this.login);
-        hash = 19 * hash + Objects.hashCode(this.pasword);
+        hash = 19 * hash + Objects.hashCode(this.password);
         hash = 19 * hash + Objects.hashCode(this.salt);
         hash = 19 * hash + Objects.hashCode(this.phone);
         hash = 19 * hash + Objects.hashCode(this.firstname);
@@ -117,7 +117,7 @@ public class User implements Serializable {
         if (!Objects.equals(this.login, other.login)) {
             return false;
         }
-        if (!Objects.equals(this.pasword, other.pasword)) {
+        if (!Objects.equals(this.password, other.password)) {
             return false;
         }
         if (!Objects.equals(this.salt, other.salt)) {
@@ -144,7 +144,7 @@ public class User implements Serializable {
         return "User{" 
                 + "id=" + id 
                 + ", login=" + login 
-                + ", pasword=" + pasword 
+                + ", password=" + password 
                 + ", salt=" + salt 
                 + ", phone=" + phone 
                 + ", firstname=" + firstname 

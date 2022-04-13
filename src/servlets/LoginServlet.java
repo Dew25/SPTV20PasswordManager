@@ -5,7 +5,9 @@
  */
 package servlets;
 
+import entity.Role;
 import entity.User;
+import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.ejb.EJB;
@@ -19,20 +21,59 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import sessian.RoleFacade;
 import sessian.UserFacade;
+import sessian.UserRolesFacade;
+import tools.PasswordProtected;
 
 /**
  *
  * @author user
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {
+@WebServlet(name = "LoginServlet",loadOnStartup = 1, urlPatterns = {
     "/login",
     "/logout",
     
 })
 public class LoginServlet extends HttpServlet {
     @EJB private UserFacade userFacade;
-
+    @EJB private RoleFacade roleFacade;
+    @EJB private UserRolesFacade userRolesFacade;
+    
+    private PasswordProtected pp = new PasswordProtected();
+    
+    @Override
+    public void init() throws ServletException {
+        super.init(); //To change body of generated methods, choose Tools | Templates.
+        if(userFacade.count() != 0) return;
+        
+        User user = new User();
+        user.setFirstname("Juri");
+        user.setLastname("Melnikov");
+        user.setPhone("5654456767");
+        user.setLogin("admin");
+        String salt = pp.getSalt();
+        user.setSalt(salt);
+        String password = pp.passwordEncript("12345", salt);
+        user.setPassword(password);
+        userFacade.create(user);
+        
+        Role role = new Role();
+        role.setRoleName("USER");
+        roleFacade.create(role);
+        UserRoles userRoles = new UserRoles();
+        userRoles.setRole(role);
+        userRoles.setUser(user);
+        userRolesFacade.create(userRoles);
+        
+        role = new Role();
+        role.setRoleName("ADMINISTRATOR");
+        roleFacade.create(role);
+        userRoles = new UserRoles();
+        userRoles.setRole(role);
+        userRoles.setUser(user);
+        userRolesFacade.create(userRoles);
+    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -63,7 +104,8 @@ public class LoginServlet extends HttpServlet {
                     }
                     break;
                 }
-                if(!password.equals(authUser.getPasword())){
+                password = pp.passwordEncript(password, authUser.getSalt());
+                if(!password.equals(authUser.getPassword())){
                     job.add("info", "Не совпадает пароль");
                     job.add("auth", false);
                     try (PrintWriter out = response.getWriter()) {

@@ -1,3 +1,9 @@
+
+import {loginModule} from './LoginModule.js';
+import {viewModule} from './ViewModule.js';
+
+export{showMenu,hiddenMenu,hiddenMenuLogin, showMenuLogin};
+
 const menu_list_pages = document.getElementById("menu_list_pages");
 menu_list_pages.addEventListener("click",(e)=>{
     e.preventDefault();
@@ -24,13 +30,13 @@ const menu_login = document.getElementById("menu_login");
 menu_login.addEventListener("click", (e) => {
     e.preventDefault();
     //toggleMenuLogin(e.target.id);
-    showLoginForm();
+    viewModule.showLoginForm();
 })
 const menu_logout = document.getElementById("menu_logout");
 menu_logout.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleMenuLogin(e.target.id);
-    sendLogout();
+    loginModule.sendLogout();
 })
 const info = document.getElementById("info");
 
@@ -85,71 +91,4 @@ function hiddenMenu(){
     document.getElementById('menu_add').classList.add('d-none');
     document.getElementById('menu_profile').classList.add('d-none');
 }
-function showLoginForm(){
-    const content = document.getElementById('content');
-    content.innerHTML = `<div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
-                            <h3 class="card-header text-center">Авторизация</h3>
-                            <div class="card-body">
-                              <div class="form-group">
-                                <label for="login" class="form-label mt-4">Логин</label>
-                                <input type="text" class="form-control" id="login" placeholder="Логин">
-                              </div>
-                              <div class="form-group">
-                                <label for="password" class="form-label mt-4">Пароль</label>
-                                <input type="password" class="form-control" id="password" placeholder="password">
-                              </div>
-                            </div>
-                            <button id="btnLogin" type="submit" class="btn btn-primary m-3">Войти</button>
-                        </div>`;
-    const btnLogin = document.getElementById('btnLogin');
-    btnLogin.addEventListener('click', (e)=>{
-        e.preventDefault();
-        sendCredential();
-    });
-}
 
-function sendCredential(){
-    const login = document.getElementById('login').value;
-    const password = document.getElementById('password').value;
-    const credential = {
-        "login": login,
-        "password": password
-    };
-    let promise = fetch('login',{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json;charset:utf8'
-        },
-        body: JSON.stringify(credential)
-    });
-    promise.then(response=> response.json())
-       .then(response =>{
-           if(response.auth){
-               document.getElementById('info').innerHTML = response.info;
-               showMenu();
-               hiddenMenuLogin();
-           }else{
-               hiddenMenu();
-               showMenuLogin();
-               document.getElementById('info').innerHTML = "Ошибка авторизации";
-           }
-       })
-       .catch(
-            document.getElementById('info').innerHTML = "Ошибка запроса"
-       )
- }
- function sendLogout(){
-     let promise = fetch('logout', {
-         method: 'GET',
-     });
-     promise.then(response => response.json())
-             .then(response => {
-                 if(!response.auth){
-                    hiddenMenu();
-                    showMenuLogin();
-                    document.getElementById('info').innerHTML = "Вы вышли";
-                    showLoginForm();
-                 }
-     })
-     
- }
