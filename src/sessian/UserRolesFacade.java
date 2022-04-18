@@ -5,8 +5,11 @@
  */
 package sessian;
 
+import entity.User;
 import entity.UserRoles;
+import java.util.List;
 import javax.ejb.Stateless;
+import javax.json.JsonValue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -27,6 +30,23 @@ public class UserRolesFacade extends AbstractFacade<UserRoles> {
 
     public UserRolesFacade() {
         super(UserRoles.class);
+    }
+
+    public String getRoleUser(User user) {
+        try {
+            List<String> listRoleName = em.createQuery("SELECT ur.role.roleName FROM UserRoles ur WHERE ur.user = :user")
+                    .setParameter("user", user)
+                    .getResultList();
+            if(listRoleName.contains("ADMINISTRATOR")){
+                return "ADMINISTRATOR";
+            }else if(listRoleName.contains("USER")){
+                return "USER";
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
     
 }

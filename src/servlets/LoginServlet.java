@@ -10,6 +10,7 @@ import entity.User;
 import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import jsonbuilders.UserJsonBuilder;
 import sessian.RoleFacade;
 import sessian.UserFacade;
 import sessian.UserRolesFacade;
@@ -33,6 +35,8 @@ import tools.PasswordProtected;
 @WebServlet(name = "LoginServlet",loadOnStartup = 1, urlPatterns = {
     "/login",
     "/logout",
+    "/registration",
+    
     
 })
 public class LoginServlet extends HttpServlet {
@@ -87,7 +91,6 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         JsonObjectBuilder job = Json.createObjectBuilder();
-        
         String path = request.getServletPath();
         switch (path) {
             case "/login":
@@ -115,9 +118,12 @@ public class LoginServlet extends HttpServlet {
                 }
                 HttpSession session = request.getSession(true);
                 session.setAttribute("authUser", authUser);
+                UserJsonBuilder ujb = new UserJsonBuilder();
                 job.add("info", "Вы вошли как "+authUser.getLogin());
                 job.add("auth",true);
                 job.add("token", session.getId());
+                job.add("user", ujb.getJsonUser(authUser).toString());
+                job.add("role",userRolesFacade.getRoleUser(authUser));
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
@@ -132,6 +138,45 @@ public class LoginServlet extends HttpServlet {
                         out.println(job.build().toString());
                     }
                 }
+                break;
+            case "/registration":
+                jsonReader = Json.createReader(request.getReader());
+                jo = jsonReader.readObject();
+                String firstname = jo.getString("firstname","");
+                String lastname = jo.getString("lastname","");
+                String phone = jo.getString("phone","");
+                login = jo.getString("login","");
+                password = jo.getString("password","");
+                if("".equals(firstname) || "".equals(lastname)
+                        || "".equals(phone) || "".equals(login)
+                        || "".equals(password)){
+                    job.add("status", false);
+                    job.add("info", "Все поля должны быть заполнены");
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
+                    break;
+                }
+                User newUser = new User();
+                newUser.setFirstname(firstname);
+                newUser.setLastname(lastname);
+                newUser.setPhone(phone);
+                newUser.setLogin(login);
+                String salt = pp.getSalt();
+                newUser.setSalt(salt);
+                password = pp.passwordEncript(password, salt);
+                newUser.setPassword(password);
+                userFacade.create(newUser);
+                Role userRole = roleFacade.findByRoleName("USER");
+                UserRoles ur = new UserRoles();
+                ur.setRole(userRole);
+                ur.setUser(newUser);
+                userRolesFacade.create(ur);
+                job.add("status", true);
+                    job.add("info", "Новый пользователь добавлен");
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(job.build().toString());
+                    }
                 break;
         }
         

@@ -16,14 +16,18 @@ class LoginModule{
         headers: {
             'Content-Type': 'application/json;charset:utf8'
         },
+        credentials: 'include',
         body: JSON.stringify(credential)
     });
     promise.then(response=> response.json())
        .then(response =>{
            if(response.auth){
                document.getElementById('info').innerHTML = response.info;
-               showMenu();
                hiddenMenuLogin();
+               sessionStorage.setItem('token',JSON.stringify(response.token));
+               sessionStorage.setItem('user',JSON.stringify(response.user));
+               sessionStorage.setItem('role',JSON.stringify(response.role));
+               showMenu();
                document.getElementById('content').innerHTML = "";
            }else{
                hiddenMenu();
@@ -31,9 +35,11 @@ class LoginModule{
                document.getElementById('info').innerHTML = response.info;
            }
        })
-       .catch(
-            document.getElementById('info').innerHTML = "Ошибка запроса"
-       )
+       .catch( error =>{
+           document.getElementById('info').innerHTML = "Ошибка запроса: "+error
+           document.getElementById('content').innerHTML = "";
+
+       });
  }
  sendLogout(){
      let promise = fetch('logout', {
@@ -42,6 +48,15 @@ class LoginModule{
      promise.then(response => response.json())
              .then(response => {
                  if(!response.auth){
+                     if(sessionStorage.getItem('token')!== null){
+                        sessionStorage.removeItem('token');
+                     }
+                     if(sessionStorage.getItem('user')!== null){
+                        sessionStorage.removeItem('user');
+                     }
+                     if(sessionStorage.getItem('role')!== null){
+                        sessionStorage.removeItem('role');
+                     }
                     hiddenMenu();
                     showMenuLogin();
                     document.getElementById('info').innerHTML = response.info;
@@ -49,6 +64,49 @@ class LoginModule{
                  }
      })
      
+ }
+ registrationNewUser(){
+     const firstname = document.getElementById('firstname').value;
+     const lastname = document.getElementById('lastname').value;
+     const phone = document.getElementById('phone').value;
+     const login = document.getElementById('login').value;
+     const password1 = document.getElementById('password1').value;
+     const password2 = document.getElementById('password2').value;
+     if(password1 !== password2){
+         document.getElementById('info').innerHTML = 'Пароли не совпадают';
+         document.getElementById('password1').innerHTML = "";
+         document.getElementById('password2').innerHTML = "";
+         return;
+     }
+     const user = {
+         "firstname": firstname,
+         "lastname": lastname,
+         "phone": phone,
+         "login": login,
+         "password": password1,
+     };
+     let promise = fetch('registration',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset:utf8'
+        },
+        credentials: 'include',
+        body: JSON.stringify(user)
+    });
+    promise.then(response => respnose.json())
+            .then(response =>{
+                if(response.status){
+                    document.getElementById('info').innerHTML = response.info;
+                    viewModule.showLoginForm();
+                }else{
+                    document.getElementById('info').innerHTML = response.info;
+                    viewModule.showRegistrationForm();
+                }
+            })
+            .catch(error =>{
+                document.getElementById('info').innerHTML = "Ошибка запроса: "+error;
+                document.getElementById('content').innerHTML = "";
+            });
  }
 }
 const loginModule = new LoginModule();

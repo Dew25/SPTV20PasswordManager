@@ -45,7 +45,7 @@ function toggleActiveMenu(selectedElementId){
     document.getElementById("info").innerHTML='';
     const listNavlinks = document.getElementsByClassName("nav-link");
     for(let i = 0; i < listNavlinks.length; i++){
-        console.log('id='+listNavlinks[i].id);
+        //console.log('id='+listNavlinks[i].id);
         if(listNavlinks[i].id === selectedElementId){
            if(!listNavlinks[i].classList.contains("active")){
                listNavlinks[i].classList.add("active");
