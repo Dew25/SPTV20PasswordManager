@@ -1,4 +1,5 @@
 import {loginModule} from './LoginModule.js';
+import {adminModule} from './AdminModule.js';
 class ViewModule{
     showLoginForm(){
         const content = document.getElementById('content');
@@ -29,6 +30,7 @@ class ViewModule{
         })
     }
     showRegistrationForm(){
+        document.getElementById("info").innerHTML = '';
         const content = document.getElementById('content');
         content.innerHTML =`<div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
                                 <h3 class="card-header text-center">Новый пользователь</h3>
@@ -65,6 +67,47 @@ class ViewModule{
             e.preventDefault();
             loginModule.registrationNewUser();
         })
+    }
+    showAdminPanelForm(usersMap, roles){
+        document.getElementById("info").innerHTML = '';
+        const content = document.getElementById('content');
+        content.innerHTML = 
+            `<div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
+                <h3 class="card-header text-center">Панель администратора</h3>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="select_users" class="form-label mt-4">Пользователи</label>
+                    <select class="form-select" id="select_users" name="selectUsers">
+                      
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="select_roles" class="form-label mt-4">Роли</label>
+                    <select class="form-select" id="select_roles" name="selectRoles">
+                      
+                    </select>
+                  </div>
+                <button id="btnSetRole" type="submit" class="btn btn-primary m-3">Назначить роль</button>
+            </div>`;
+        const select_users = document.getElementById('select_users');
+        for(let i=0; i < usersMap; i++){
+            const option = document.createElement('option');
+            option.value = usersMap[i].user.id;
+            option.text = `${usersMap[i].user.login}. Роль: ${usersMap[i].role}`;
+            select_users.add(option);
+        }
+        
+        const select_roles = document.getElementById('select_roles');
+        for(let i=0; i < roles; i++){
+            const option = document.createElement('option');
+            option.value = roles[i].id;
+            option.text = roles[i].roleName;
+            select_roles.add(option);
+        }
+        document.getElementById('btnSetRole').addEventListener('click',(e)=>{
+            e.preventDefault();
+            adminModule.setNewRole();
+        });
     }
 }
 const viewModule = new ViewModule();

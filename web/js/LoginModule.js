@@ -93,7 +93,7 @@ class LoginModule{
         credentials: 'include',
         body: JSON.stringify(user)
     });
-    promise.then(response => respnose.json())
+    promise.then(respnose => respnose.json())
             .then(response =>{
                 if(response.status){
                     document.getElementById('info').innerHTML = response.info;

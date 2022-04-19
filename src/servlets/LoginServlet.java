@@ -10,7 +10,6 @@ import entity.User;
 import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -90,6 +89,7 @@ public class LoginServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
         JsonObjectBuilder job = Json.createObjectBuilder();
         String path = request.getServletPath();
         switch (path) {
