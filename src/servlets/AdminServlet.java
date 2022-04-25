@@ -7,24 +7,18 @@ package servlets;
 
 import entity.Role;
 import entity.User;
-import entity.UserRoles;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
 import sessian.RoleFacade;
 import sessian.UserFacade;
@@ -70,25 +64,32 @@ public class AdminServlet extends HttpServlet {
                 List<Role> listRoles = roleFacade.findAll();
                 JsonArrayBuilder jab = Json.createArrayBuilder();
                 for(int i = 0; i < listRoles.size(); i++){
-                    job.add("id", listRoles.get(i).getId());
-                    job.add("roleName", listRoles.get(i).getRoleName());
-                    jab.add(job.build());
+                    JsonObjectBuilder jsonURolesBuilder = Json.createObjectBuilder();
+                    jsonURolesBuilder.add("id", listRoles.get(i).getId());
+                    jsonURolesBuilder.add("roleName", listRoles.get(i).getRoleName());
+                    jab.add(jsonURolesBuilder);
                 }
+                job.add("status",true);
+                job.add("roles", jab.build());
                 try (PrintWriter out = response.getWriter()) {
-                    out.println(jab.build().toString());
+                    out.println(job.build().toString());
                 }
                 break;
             case "/getUsersMap":
                 List<User> listUsers = userFacade.findAll();
                 jab = Json.createArrayBuilder();
+                
                 UserJsonBuilder ujb = new UserJsonBuilder();
                 for (int i = 0; i < listUsers.size(); i++) {
-                    job.add("user", ujb.getJsonUser(listUsers.get(i)));
-                    job.add("role", userRolesFacade.getRoleUser(listUsers.get(i)));
-                    jab.add(job);
+                    JsonObjectBuilder jsonUserRoleBuilder = Json.createObjectBuilder();
+                    jsonUserRoleBuilder.add("user", ujb.getJsonUser(listUsers.get(i)));
+                    jsonUserRoleBuilder.add("role", userRolesFacade.getRoleUser(listUsers.get(i)));
+                    jab.add(jsonUserRoleBuilder.build());
                 }
+                job.add("status", true);
+                job.add("usersMap",jab.build());
                 try (PrintWriter out = response.getWriter()) {
-                    out.println(jab.build().toString());
+                    out.println(job.build().toString());
                 }
                 break;
             case "/setUserRole":

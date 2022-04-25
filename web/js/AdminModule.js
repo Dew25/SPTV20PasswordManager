@@ -11,10 +11,18 @@ class AdminModule{
         });
         pormiseRoles.then(response => response.json())
                     .then(response => {
-                        if(response.roles.length > 0){
-                            return response.roles;
+                        if(response.status){
+                            const select_roles = document.getElementById('select_roles');
+                            select_roles.options.length = 0;
+                            for(let i=0; i < response.roles.length; i++){
+                                const option = document.createElement('option');
+                                option.value = response.roles[i].id;
+                                option.text = response.roles[i].roleName;
+                                select_roles.add(option);
+                            };
+                        }else{
+                            document.getElementById('info').innerHTML = 'Список ролей пуст';
                         }
-                        document.getElementById('info').innerHTML = 'Список ролей пуст';
                     })
                     .catch(error =>{
                        document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
@@ -31,11 +39,19 @@ class AdminModule{
         });
         promiseUsersMap.then(response => response.json())
                        .then(response => {
-                           if(response.usersMap.length > 0){
-                               return response.usersMap;
+                           if(response.status){
+                               const usersMap = response.usersMap;
+                               const select_users = document.getElementById('select_users');
+                               select_users.options.length = 0;
+                                for(let i=0; i < usersMap.length; i++){
+                                    const option = document.createElement('option');
+                                    option.value = usersMap[i].user.id;
+                                    option.text = `${usersMap[i].user.login}. Роль: ${usersMap[i].role}`;
+                                    select_users.add(option);
+                                }
+                           }else{
+                               document.getElementById('info').innerHTML = 'Список пользователей пуст';
                            }
-                           document.getElementById('info').innerHTML = 'Список пользователей пуст';
-                           
                        })
                        .catch(error => {
                            document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
@@ -60,10 +76,9 @@ class AdminModule{
         promiseSetUserRole.then(response => response.json())
                           .then(response =>{
                               if(response.status){
-                                  adminModule.setNewRole(response.user,response.role);
                                   adminModule.insertSelectedOptions(adminModule.getUsersMap(),adminModule.getRoles());
                               }
-                              document.getElementById('info').innerHTML = response.info;
+                              //document.getElementById('info').innerHTML = response.info;
                           })
                           .catch(error => {
                               document.getElementById('info').innerHTML = 'Ошибка сервера: '+error

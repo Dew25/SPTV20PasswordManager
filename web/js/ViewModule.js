@@ -68,7 +68,7 @@ class ViewModule{
             loginModule.registrationNewUser();
         })
     }
-    showAdminPanelForm(usersMap, roles){
+    showAdminPanelForm(){
         document.getElementById("info").innerHTML = '';
         const content = document.getElementById('content');
         content.innerHTML = 
@@ -89,7 +89,9 @@ class ViewModule{
                   </div>
                 <button id="btnSetRole" type="submit" class="btn btn-primary m-3">Назначить роль</button>
             </div>`;
-        adminModule.insertSelectedOptions(adminModule.getUsersMap(),adminModule.getRoles());
+        const usersMap = adminModule.getUsersMap();
+        const roles = adminModule.getRoles();
+        adminModule.insertSelectedOptions(usersMap,roles);
         document.getElementById('btnSetRole').addEventListener('click',(e)=>{
             e.preventDefault();
             adminModule.setNewRole();
