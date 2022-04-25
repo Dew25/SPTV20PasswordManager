@@ -13,7 +13,9 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -93,6 +95,18 @@ public class AdminServlet extends HttpServlet {
                 }
                 break;
             case "/setUserRole":
+                JsonReader jsonReader = Json.createReader(request.getReader());
+                JsonObject jo = jsonReader.readObject();
+                String userId = jo.getString("userId","");
+                String roleId = jo.getString("roleId","");
+                User user = userFacade.find(Long.parseLong(userId));
+                Role role = roleFacade.find(Long.parseLong(roleId));
+                userRolesFacade.setUserRole(user,role);
+                job.add("status",true);
+                
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
                 
                 break;
         }

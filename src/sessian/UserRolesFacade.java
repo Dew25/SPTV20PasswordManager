@@ -5,11 +5,11 @@
  */
 package sessian;
 
+import entity.Role;
 import entity.User;
 import entity.UserRoles;
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.json.JsonValue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -47,6 +47,20 @@ public class UserRolesFacade extends AbstractFacade<UserRoles> {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public void setUserRole(User user, Role role) {
+        removeRolesToUser(user);
+        UserRoles ur = new UserRoles();
+        ur.setRole(role);
+        ur.setUser(user);
+        super.create(ur);
+    }
+
+    private void removeRolesToUser(User user) {
+        em.createQuery("DELETE FROM UserRoles ur WHERE ur.user = :user")
+                .setParameter("user", user)
+                .executeUpdate();
     }
     
 }

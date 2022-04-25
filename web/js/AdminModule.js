@@ -12,14 +12,7 @@ class AdminModule{
         pormiseRoles.then(response => response.json())
                     .then(response => {
                         if(response.status){
-                            const select_roles = document.getElementById('select_roles');
-                            select_roles.options.length = 0;
-                            for(let i=0; i < response.roles.length; i++){
-                                const option = document.createElement('option');
-                                option.value = response.roles[i].id;
-                                option.text = response.roles[i].roleName;
-                                select_roles.add(option);
-                            };
+                            adminModule.insertSelectRoles(response.roles)
                         }else{
                             document.getElementById('info').innerHTML = 'Список ролей пуст';
                         }
@@ -40,15 +33,7 @@ class AdminModule{
         promiseUsersMap.then(response => response.json())
                        .then(response => {
                            if(response.status){
-                               const usersMap = response.usersMap;
-                               const select_users = document.getElementById('select_users');
-                               select_users.options.length = 0;
-                                for(let i=0; i < usersMap.length; i++){
-                                    const option = document.createElement('option');
-                                    option.value = usersMap[i].user.id;
-                                    option.text = `${usersMap[i].user.login}. Роль: ${usersMap[i].role}`;
-                                    select_users.add(option);
-                                }
+                               adminModule.insertSelectUsers(response.usersMap);
                            }else{
                                document.getElementById('info').innerHTML = 'Список пользователей пуст';
                            }
@@ -76,31 +61,35 @@ class AdminModule{
         promiseSetUserRole.then(response => response.json())
                           .then(response =>{
                               if(response.status){
-                                  adminModule.insertSelectedOptions(adminModule.getUsersMap(),adminModule.getRoles());
+                                  adminModule.getUsersMap();
+                                  adminModule.getRoles();
                               }
                               //document.getElementById('info').innerHTML = response.info;
                           })
                           .catch(error => {
                               document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
                           });
-        alert("Новая роль");
+        
     }
-    insertSelectedOptions(usersMap,roles){
+    insertSelectUsers(usersMap){
         const select_users = document.getElementById('select_users');
+        select_users.options.length = 0;
         for(let i=0; i < usersMap.length; i++){
             const option = document.createElement('option');
             option.value = usersMap[i].user.id;
             option.text = `${usersMap[i].user.login}. Роль: ${usersMap[i].role}`;
             select_users.add(option);
         }
-        
+    };
+    insertSelectRoles(roles){
         const select_roles = document.getElementById('select_roles');
+        select_roles.options.length = 0;
         for(let i=0; i < roles.length; i++){
             const option = document.createElement('option');
             option.value = roles[i].id;
             option.text = roles[i].roleName;
             select_roles.add(option);
-        }
+        };
     }
 }
 const adminModule = new AdminModule();

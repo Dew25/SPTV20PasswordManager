@@ -47,7 +47,6 @@ menu_logout.addEventListener("click",(e)=>{
 
 
 function toggleActiveMenu(selectedElementId){
-
     const listNavlinks = document.getElementsByClassName("nav-link");
     for(let i = 0; i < listNavlinks.length; i++){
         //console.log('id='+listNavlinks[i].id);
@@ -80,22 +79,29 @@ function showMenuLogin(){
 }
 function hiddenMenuLogin(){
     const menu_logout = document.getElementById("menu_logout");
-    menu_logout.classList.remove('d-none');
+    if( menu_logout.classList.contains('d-none')){
+        menu_logout.classList.remove('d-none');
+    }
     const menu_login = document.getElementById("menu_login")
-    menu_login.classList.add('d-none');
+    if( !menu_logout.classList.contains('d-none')){
+        menu_login.classList.add('d-none');
+    }
     toggleActiveMenu("");
     showMenu();
 }
 function showMenu(){
-    document.getElementById('menu_add').classList.remove('d-none');
-    document.getElementById('menu_profile').classList.remove('d-none');
-    let role = null;
-    if(sessionStorage.getItem("role")!== null){
-         role = JSON.parse(sessionStorage.getItem("role"));
+    if(sessionStorage.getItem("role")=== null) {
+        hiddenMenu();
+        showMenuLogin();
+        return;
     }
+    hiddenMenuLogin();
+    let role =JSON.parse(sessionStorage.getItem("role"));
     if(role === 'ADMINISTRATOR'){
         document.getElementById('menu_admin_panel').classList.remove('d-none');
     }
+    document.getElementById('menu_add').classList.remove('d-none');
+    document.getElementById('menu_profile').classList.remove('d-none');
 }
 function hiddenMenu(){
     document.getElementById('menu_add').classList.add('d-none');
@@ -105,3 +111,4 @@ function hiddenMenu(){
     }
 }
 
+showMenu();

@@ -72,7 +72,7 @@ class ViewModule{
         document.getElementById("info").innerHTML = '';
         const content = document.getElementById('content');
         content.innerHTML = 
-            `<div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
+            `<div class="card border-primary my-5 mx-auto" style="max-width: 30rem;">
                 <h3 class="card-header text-center">Панель администратора</h3>
                 <div class="card-body">
                   <div class="form-group">
@@ -89,9 +89,7 @@ class ViewModule{
                   </div>
                 <button id="btnSetRole" type="submit" class="btn btn-primary m-3">Назначить роль</button>
             </div>`;
-        const usersMap = adminModule.getUsersMap();
-        const roles = adminModule.getRoles();
-        adminModule.insertSelectedOptions(usersMap,roles);
+        
         document.getElementById('btnSetRole').addEventListener('click',(e)=>{
             e.preventDefault();
             adminModule.setNewRole();
