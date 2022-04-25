@@ -89,21 +89,7 @@ class ViewModule{
                   </div>
                 <button id="btnSetRole" type="submit" class="btn btn-primary m-3">Назначить роль</button>
             </div>`;
-        const select_users = document.getElementById('select_users');
-        for(let i=0; i < usersMap; i++){
-            const option = document.createElement('option');
-            option.value = usersMap[i].user.id;
-            option.text = `${usersMap[i].user.login}. Роль: ${usersMap[i].role}`;
-            select_users.add(option);
-        }
-        
-        const select_roles = document.getElementById('select_roles');
-        for(let i=0; i < roles; i++){
-            const option = document.createElement('option');
-            option.value = roles[i].id;
-            option.text = roles[i].roleName;
-            select_roles.add(option);
-        }
+        adminModule.insertSelectedOptions(adminModule.getUsersMap(),adminModule.getRoles());
         document.getElementById('btnSetRole').addEventListener('click',(e)=>{
             e.preventDefault();
             adminModule.setNewRole();
