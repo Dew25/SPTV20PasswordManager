@@ -66,10 +66,10 @@ public class AdminServlet extends HttpServlet {
                 List<Role> listRoles = roleFacade.findAll();
                 JsonArrayBuilder jab = Json.createArrayBuilder();
                 for(int i = 0; i < listRoles.size(); i++){
-                    JsonObjectBuilder jsonURolesBuilder = Json.createObjectBuilder();
-                    jsonURolesBuilder.add("id", listRoles.get(i).getId());
-                    jsonURolesBuilder.add("roleName", listRoles.get(i).getRoleName());
-                    jab.add(jsonURolesBuilder);
+                    JsonObjectBuilder jsonRoleBuilder = Json.createObjectBuilder();
+                    jsonRoleBuilder.add("id", listRoles.get(i).getId());
+                    jsonRoleBuilder.add("roleName", listRoles.get(i).getRoleName());
+                    jab.add(jsonRoleBuilder);
                 }
                 job.add("status",true);
                 job.add("roles", jab.build());
@@ -95,15 +95,18 @@ public class AdminServlet extends HttpServlet {
                 }
                 break;
             case "/setUserRole":
-                JsonReader jsonReader = Json.createReader(request.getReader());
-                JsonObject jo = jsonReader.readObject();
-                String userId = jo.getString("userId","");
-                String roleId = jo.getString("roleId","");
-                User user = userFacade.find(Long.parseLong(userId));
-                Role role = roleFacade.find(Long.parseLong(roleId));
-                userRolesFacade.setUserRole(user,role);
-                job.add("status",true);
-                
+                try {
+                    JsonReader jsonReader = Json.createReader(request.getReader());
+                    JsonObject jo = jsonReader.readObject();
+                    String userId = jo.getString("userId","");
+                    String roleId = jo.getString("roleId","");
+                    User user = userFacade.find(Long.parseLong(userId));
+                    Role role = roleFacade.find(Long.parseLong(roleId));
+                    userRolesFacade.setUserRole(user,role);
+                    job.add("status",true);
+                } catch (IOException | NumberFormatException e) {
+                    job.add("status",false);
+                }
                 try (PrintWriter out = response.getWriter()) {
                     out.println(job.build().toString());
                 }

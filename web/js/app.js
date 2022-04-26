@@ -87,7 +87,7 @@ function hiddenMenuLogin(){
         menu_login.classList.add('d-none');
     }
     toggleActiveMenu("");
-    showMenu();
+    //showMenu();
 }
 function showMenu(){
     if(sessionStorage.getItem("role")=== null) {
@@ -111,4 +111,4 @@ function hiddenMenu(){
     }
 }
 
-showMenu();
+//showMenu();

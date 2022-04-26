@@ -18,7 +18,7 @@ class AdminModule{
                         }
                     })
                     .catch(error =>{
-                       document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
+                       document.getElementById('info').innerHTML = 'Ошибка сервера (getRoles): '+error
                         
                     })
     }
@@ -39,7 +39,7 @@ class AdminModule{
                            }
                        })
                        .catch(error => {
-                           document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
+                           document.getElementById('info').innerHTML = 'Ошибка сервера (getUsersMap): '+error
                        });
        
     }
@@ -62,12 +62,12 @@ class AdminModule{
                           .then(response =>{
                               if(response.status){
                                   adminModule.getUsersMap();
-                                  adminModule.getRoles();
+                                  //adminModule.getRoles();
                               }
                               //document.getElementById('info').innerHTML = response.info;
                           })
                           .catch(error => {
-                              document.getElementById('info').innerHTML = 'Ошибка сервера: '+error
+                              document.getElementById('info').innerHTML = 'Ошибка сервера (setNewRole): '+error
                           });
         
     }
