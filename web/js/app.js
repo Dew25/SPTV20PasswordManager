@@ -3,7 +3,7 @@ import {loginModule} from './LoginModule.js';
 import {viewModule} from './ViewModule.js';
 import {adminModule} from './AdminModule.js';
 
-export{showMenu,hiddenMenu,hiddenMenuLogin, showMenuLogin};
+export{checkMenuPanel};
 
 const menu_list_pages = document.getElementById("menu_list_pages");
 menu_list_pages.addEventListener("click",(e)=>{
@@ -40,7 +40,6 @@ menu_login.addEventListener("click", (e) => {
 const menu_logout = document.getElementById("menu_logout");
 menu_logout.addEventListener("click",(e)=>{
     e.preventDefault();
-    toggleMenuLogin(e.target.id);
     loginModule.sendLogout();
 });
 
@@ -49,7 +48,6 @@ menu_logout.addEventListener("click",(e)=>{
 function toggleActiveMenu(selectedElementId){
     const listNavlinks = document.getElementsByClassName("nav-link");
     for(let i = 0; i < listNavlinks.length; i++){
-        //console.log('id='+listNavlinks[i].id);
         if(listNavlinks[i].id === selectedElementId){
            if(!listNavlinks[i].classList.contains("active")){
                listNavlinks[i].classList.add("active");
@@ -62,53 +60,62 @@ function toggleActiveMenu(selectedElementId){
     }
 }
 
-
-function toggleMenuLogin(elementId){
-    if(elementId === "menu_login"){
-        hiddenMenuLogin()  
-    }else if(elementId === "menu_logout"){
-        showMenuLogin()
-    }
-   
-}
-function showMenuLogin(){
-    document.getElementById("menu_logout").classList.add('d-none');
-    document.getElementById("menu_login").classList.remove('d-none');
-    toggleActiveMenu("");
-    hiddenMenu();
-}
-function hiddenMenuLogin(){
-    const menu_logout = document.getElementById("menu_logout");
-    if( menu_logout.classList.contains('d-none')){
-        menu_logout.classList.remove('d-none');
-    }
-    const menu_login = document.getElementById("menu_login")
-    if( !menu_logout.classList.contains('d-none')){
-        menu_login.classList.add('d-none');
-    }
-    toggleActiveMenu("");
-    //showMenu();
-}
-function showMenu(){
-    if(sessionStorage.getItem("role")=== null) {
-        hiddenMenu();
-        showMenuLogin();
+function checkMenuPanel(){
+    let role = sessionStorage.getItem('role');
+    if(role===null){
+        if(!document.getElementById('menu_add').classList.contains('d-none')){
+            document.getElementById('menu_add').classList.add('d-none');
+        }
+        if(!document.getElementById('menu_profile').classList.contains('d-none')){
+            document.getElementById('menu_profile').classList.add('d-none');
+        }
+        if(!document.getElementById('menu_admin_panel').classList.contains('d-none')){
+            document.getElementById('menu_admin_panel').classList.add('d-none');
+        }
+        if(!document.getElementById('menu_logout').classList.contains('d-none')){
+            document.getElementById("menu_logout").classList.add('d-none'); //Спрятать выход
+        }
+        if(!document.getElementById('menu_login').classList.contains('d-none')){
+            document.getElementById("menu_login").classList.remove('d-none');//Показать вход
+        }
         return;
     }
-    hiddenMenuLogin();
-    let role =JSON.parse(sessionStorage.getItem("role"));
-    if(role === 'ADMINISTRATOR'){
-        document.getElementById('menu_admin_panel').classList.remove('d-none');
+    role = JSON.parse(role);
+    if(role.roleName === 'USER'){
+        if(document.getElementById('menu_add').classList.contains('d-none')){
+            document.getElementById('menu_add').classList.remove('d-none');//Показать 
+        }
+        if(document.getElementById('menu_profile').classList.contains('d-none')){
+            document.getElementById('menu_profile').classList.remove('d-none');//Показать 
+        }
+        if(!document.getElementById('menu_admin_panel').classList.contains('d-none')){
+            document.getElementById('menu_admin_panel').classList.add('d-none');//Спрятать
+        }
+        if(document.getElementById('menu_logout').classList.contains('d-none')){
+            document.getElementById("menu_logout").classList.remove('d-none'); //Показать выход
+        }
+        if(!document.getElementById('menu_login').classList.contains('d-none')){
+            document.getElementById("menu_login").classList.add('d-none');//Спрятать вход
+        }
+        return;
     }
-    document.getElementById('menu_add').classList.remove('d-none');
-    document.getElementById('menu_profile').classList.remove('d-none');
-}
-function hiddenMenu(){
-    document.getElementById('menu_add').classList.add('d-none');
-    document.getElementById('menu_profile').classList.add('d-none');
-    if(!document.getElementById('menu_admin_panel').classList.contains('d-none')){
-       document.getElementById('menu_admin_panel').classList.add('d-none');
+    if(role.roleName === 'ADMINISTRATOR'){
+        if(document.getElementById('menu_add').classList.contains('d-none')){
+            document.getElementById('menu_add').classList.remove('d-none');//Показать 
+        }
+        if(document.getElementById('menu_profile').classList.contains('d-none')){
+            document.getElementById('menu_profile').classList.remove('d-none');//Показать 
+        }
+        if(document.getElementById('menu_admin_panel').classList.contains('d-none')){
+            document.getElementById('menu_admin_panel').classList.remove('d-none');//Показать
+        }
+        if(document.getElementById('menu_logout').classList.contains('d-none')){
+            document.getElementById("menu_logout").classList.remove('d-none'); //Показать выход
+        }
+        if(!document.getElementById('menu_login').classList.contains('d-none')){
+            document.getElementById("menu_login").classList.add('d-none');//Спрятать вход
+        }
+        return;
     }
 }
-
-//showMenu();
+checkMenuPanel();

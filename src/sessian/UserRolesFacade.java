@@ -9,6 +9,7 @@ import entity.Role;
 import entity.User;
 import entity.UserRoles;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,7 +20,8 @@ import javax.persistence.PersistenceContext;
  */
 @Stateless
 public class UserRolesFacade extends AbstractFacade<UserRoles> {
-
+    @EJB RoleFacade roleFacade;
+    
     @PersistenceContext(unitName = "SPTV20PasswordManagerPU")
     private EntityManager em;
 
@@ -32,7 +34,7 @@ public class UserRolesFacade extends AbstractFacade<UserRoles> {
         super(UserRoles.class);
     }
 
-    public String getRoleUser(User user) {
+    public String getRoleNameUser(User user) {
         try {
             List<String> listRoleName = em.createQuery("SELECT ur.role.roleName FROM UserRoles ur WHERE ur.user = :user")
                     .setParameter("user", user)
@@ -41,6 +43,25 @@ public class UserRolesFacade extends AbstractFacade<UserRoles> {
                 return "ADMINISTRATOR";
             }else if(listRoleName.contains("USER")){
                 return "USER";
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public Role getRoleUser(User user){
+        try {
+            List<Role> listRoles = em.createQuery("SELECT ur.role FROM UserRoles ur WHERE ur.user = :user")
+                    .setParameter("user", user)
+                    .getResultList();
+            Role roleAdmin = roleFacade.findByRoleName("ADMINISTRATOR");
+            Role roleUser = roleFacade.findByRoleName("USER");
+            
+            if(listRoles.contains(roleAdmin)){
+                return roleAdmin;
+            }else if(listRoles.contains(roleUser)){
+                return roleUser;
             }else{
                 return null;
             }

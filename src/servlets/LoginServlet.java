@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
 import sessian.RoleFacade;
 import sessian.UserFacade;
@@ -122,8 +123,8 @@ public class LoginServlet extends HttpServlet {
                 job.add("info", "Вы вошли как "+authUser.getLogin());
                 job.add("auth",true);
                 job.add("token", session.getId());
-                job.add("user", ujb.getJsonUser(authUser).toString());
-                job.add("role",userRolesFacade.getRoleUser(authUser));
+                job.add("user", ujb.getJsonUser(authUser));
+                job.add("role", new RoleJsonBuilder().getJsonRole(userRolesFacade.getRoleUser(authUser)));
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }

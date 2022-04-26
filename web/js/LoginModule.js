@@ -1,5 +1,5 @@
 
-import {showMenu,hiddenMenu,hiddenMenuLogin, showMenuLogin} from './app.js';
+import {checkMenuPanel} from './app.js';
 import {viewModule} from './ViewModule.js';
 
 class LoginModule{
@@ -23,22 +23,19 @@ class LoginModule{
        .then(response =>{
            if(response.auth){
                document.getElementById('info').innerHTML = response.info;
-               hiddenMenuLogin();
                sessionStorage.setItem('token',JSON.stringify(response.token));
                sessionStorage.setItem('user',JSON.stringify(response.user));
                sessionStorage.setItem('role',JSON.stringify(response.role));
-               showMenu();
+               checkMenuPanel();
                document.getElementById('content').innerHTML = "";
            }else{
-               hiddenMenu();
-               showMenuLogin();
+               checkMenuPanel();
                document.getElementById('info').innerHTML = response.info;
            }
        })
        .catch( error =>{
-           document.getElementById('info').innerHTML = "Ошибка запроса: "+error
+           document.getElementById('info').innerHTML = "Ошибка запроса (sendCredential): "+error
            document.getElementById('content').innerHTML = "";
-
        });
  }
  sendLogout(){
@@ -57,8 +54,7 @@ class LoginModule{
                      if(sessionStorage.getItem('role')!== null){
                         sessionStorage.removeItem('role');
                      }
-                    hiddenMenu();
-                    showMenuLogin();
+                    checkMenuPanel();
                     document.getElementById('info').innerHTML = response.info;
                     viewModule.showLoginForm();
                  }
@@ -104,7 +100,7 @@ class LoginModule{
                 }
             })
             .catch(error =>{
-                document.getElementById('info').innerHTML = "Ошибка запроса: "+error;
+                document.getElementById('info').innerHTML = "Ошибка запроса (registrationNewUser): "+error;
                 document.getElementById('content').innerHTML = "";
             });
  }

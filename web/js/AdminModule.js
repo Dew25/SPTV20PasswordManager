@@ -1,4 +1,4 @@
-
+import {checkMenuPanel} from './app.js';
 
 class AdminModule{
     getRoles(){
@@ -61,10 +61,15 @@ class AdminModule{
         promiseSetUserRole.then(response => response.json())
                           .then(response =>{
                               if(response.status){
+                                  let authUser = JSON.parse(sessionStorage.getItem('user'));
+                                  if(response.user.id === authUser.id){
+                                      sessionStorage.setItem('role',JSON.stringify(response.role));
+                                      checkMenuPanel();
+                                      document.getElementById('content').innerHTML = '';
+                                      return;
+                                  }
                                   adminModule.getUsersMap();
-                                  //adminModule.getRoles();
                               }
-                              //document.getElementById('info').innerHTML = response.info;
                           })
                           .catch(error => {
                               document.getElementById('info').innerHTML = 'Ошибка сервера (setNewRole): '+error

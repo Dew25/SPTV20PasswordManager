@@ -21,6 +21,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
 import sessian.RoleFacade;
 import sessian.UserFacade;
@@ -85,7 +86,7 @@ public class AdminServlet extends HttpServlet {
                 for (int i = 0; i < listUsers.size(); i++) {
                     JsonObjectBuilder jsonUserRoleBuilder = Json.createObjectBuilder();
                     jsonUserRoleBuilder.add("user", ujb.getJsonUser(listUsers.get(i)));
-                    jsonUserRoleBuilder.add("role", userRolesFacade.getRoleUser(listUsers.get(i)));
+                    jsonUserRoleBuilder.add("role", userRolesFacade.getRoleNameUser(listUsers.get(i)));
                     jab.add(jsonUserRoleBuilder.build());
                 }
                 job.add("status", true);
@@ -104,6 +105,8 @@ public class AdminServlet extends HttpServlet {
                     Role role = roleFacade.find(Long.parseLong(roleId));
                     userRolesFacade.setUserRole(user,role);
                     job.add("status",true);
+                    job.add("user", new UserJsonBuilder().getJsonUser(user));
+                    job.add("role", new RoleJsonBuilder().getJsonRole(role));
                 } catch (IOException | NumberFormatException e) {
                     job.add("status",false);
                 }
