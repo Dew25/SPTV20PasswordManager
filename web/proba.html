@@ -52,30 +52,24 @@
         </nav>
         <p class="info" id="info">&nbsp</p>
         <div id="content" class="flex-grow-1">
-            <div class="card border-primary mb-3 mx-auto" style="max-width: 30rem;">
-                <h3 class="card-header text-center">Панель администратора</h3>
+            <div class="card border-primary mb-3 mx-auto" style="max-width: 40rem;">
+                <h3 class="card-header text-center my-3">Новая учетная запись</h3>
                 <div class="card-body">
                   <div class="form-group">
-                    <label for="select_users" class="form-label mt-4">Пользователи</label>
-                    <select class="form-select" id="select_users" name="selectUsers">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                    </select>
+                    <label for="url" class="form-label mt-4">URL</label>
+                    <input type="text" class="form-control" id="url" placeholder="URL">
                   </div>
                   <div class="form-group">
-                    <label for="select_roles" class="form-label mt-4">Роли</label>
-                    <select class="form-select" id="select_roles" name="selectRoles">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
-                    </select>
+                    <label for="password" class="form-label mt-4">Пароль</label>
+                    <input type="password" class="form-control" id="password" placeholder="Пароль">
                   </div>
-                <button type="submit" class="btn btn-primary m-3">Назначить роль</button>
+                  <div class="form-group">
+                    <label for="imageFile" class="form-label mt-4">Изображение</label>
+                    <input class="form-control" type="file" id="imageFile" name="imageFile">
+                  </div>  
+                  <div class="w-100 text-center my-3">
+                    <button type="submit" class="btn btn-primary my-3" id="addAccount">Добавить</button>
+                  </div>
             </div>
         </div>
         <div  class="d-flex justify-content-center footer">Sillamäe 2022</div>

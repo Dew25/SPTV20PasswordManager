@@ -14,6 +14,7 @@ const menu_add = document.getElementById("menu_add");
 menu_add.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleActiveMenu(e.target.id);
+    viewModule.showAddAccountForm();
 });
 
 const menu_profile = document.getElementById("menu_profile");

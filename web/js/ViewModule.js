@@ -1,5 +1,6 @@
 import {loginModule} from './LoginModule.js';
 import {adminModule} from './AdminModule.js';
+import {userModule} from './UserModule.js';
 class ViewModule{
     showLoginForm(){
         const content = document.getElementById('content');
@@ -94,6 +95,44 @@ class ViewModule{
             e.preventDefault();
             adminModule.setNewRole();
         });
+    }
+    showAddAccountForm(){
+        document.getElementById("info").innerHTML = '';
+        const content = document.getElementById('content');
+        content.innerHTML = 
+            `<div class="card border-primary mb-3 mx-auto" style="max-width: 40rem;">
+                <form id="form_add_acound">
+                    <h3 class="card-header text-center my-3">Новая учетная запись</h3>
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label for="url" class="form-label mt-4">URL</label>
+                        <input type="text" class="form-control" id="url" placeholder="URL">
+                      </div>
+                      <div class="form-group">
+                        <label for="login" class="form-label mt-4">Логин</label>
+                        <input type="text" class="form-control" id="login" placeholder="Логин">
+                      </div>
+                      <div class="form-group">
+                        <label for="password" class="form-label mt-4">Пароль</label>
+                        <input type="password" class="form-control" id="password" placeholder="Пароль">
+                      </div>
+                      <div class="form-group">
+                        <label for="imageFile" class="form-label mt-4">Изображение</label>
+                        <input class="form-control" type="file" id="image_file" name="imageFile">
+                      </div>  
+                      <div class="w-100 text-center my-3">
+                        <button type="submit" class="btn btn-primary my-3" id="btn_add_account">Добавить</button>
+                      </div>
+                    </div>
+                </form>
+            </div>`;
+        document.getElementById('btn_add_account').addEventListener('click',e=>{
+            e.preventDefault();
+            userModule.sendNewAccountData();
+        });
+    }
+    showAccountsForm(){
+        alert("showAccountsForm!");
     }
 }
 const viewModule = new ViewModule();
