@@ -131,8 +131,22 @@ class ViewModule{
             userModule.sendNewAccountData();
         });
     }
-    showAccountsForm(){
-        alert("showAccountsForm!");
+    showAccountsForm(listAccountData){
+        content.innerHTML = "";
+        for(let i = 0; i < listAccountData.length; i++){
+            listAccountData[i]
+            content.innerHTML += 
+            `<div class="card border-primary mb-3 mx-auto" style="max-width: 18rem;">
+                <h3 class="card-header text-center my-3">${listAccountData[i].url}</h3>
+                <a href="accountData.url" target="_blank">
+                    <img src="insertFile/${listAccountData[i].pathToImage}" class="card-img-top" style="max-height: 20rem;" alt="...">
+                </a>
+                <div class="card-body">
+                    <p class="card-text">Логин: ${listAccountData[i].login}</p>
+                    <p class="card-text">Пароль: ${listAccountData[i].password}</p>
+                </div>
+            </div>`
+        }
     }
 }
 const viewModule = new ViewModule();

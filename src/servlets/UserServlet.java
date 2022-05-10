@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import jsonbuilders.AccountDataJsonBuilder;
 import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
 import sessian.AccountDataFacade;
@@ -41,9 +42,8 @@ import tools.PasswordProtected;
  * @author user
  */
 @WebServlet(name = "UserServlet", urlPatterns = {
+    "/getListAccountData",
     "/addNewAccount",
-   
-    
     
 })
 @MultipartConfig
@@ -98,6 +98,13 @@ public class UserServlet extends HttpServlet {
         }
         String path = request.getServletPath();
         switch (path) {
+            case "/getListAccountData":
+                String userId = request.getParameter("userId");
+                List<AccountData> listAccountData = accountDataFacade.findAll(userId);
+                AccountDataJsonBuilder adjb = new AccountDataJsonBuilder();
+                job.add("listAccountData", adjb.getJsonArrayAccountData(listAccountData));
+                job.add("statues", true).add("info", "");
+                break;
             case "/addNewAccount":
                Part part = request.getPart("imageFile");
                StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder

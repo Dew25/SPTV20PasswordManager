@@ -9,7 +9,25 @@ class UserModule{
                           .then(response =>{
                               if(response.status){
                                   document.getElementById('info').innerHTML = response.info;
-                                  viewModule.showAccountsForm();
+                                  userModule.getListAccountData();
+                              }else{
+                                  document.getElementById('info').innerHTML = response.info;
+                              }
+                          })
+                          .catch(error => {
+                              document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountForm)"+error;
+                          })
+    }
+    getListAccountData(){
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        let promiseGetListAccountData = fetch('getListAccountData?userId=${user.id}',{
+            method: 'GET',
+        });
+        promiseGetListAccountData.then(response => response.json())
+                          .then(response =>{
+                              if(response.status){
+                                  document.getElementById('info').innerHTML = response.info;
+                                  viewModule.showAccountsForm(response.listAccountData);
                               }else{
                                   document.getElementById('info').innerHTML = response.info;
                               }
