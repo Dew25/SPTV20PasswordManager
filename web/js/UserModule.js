@@ -1,9 +1,9 @@
-
+import {viewModule} from './ViewModule.js';
 class UserModule{
-    showAddAccountForm(){
+    sendNewAccountData(){
         let promiseSentAccound = fetch('addNewAccount',{
             method: 'POST',
-            body: new FormData(form_add_acound)
+            body: new FormData(document.getElementById('form_add_accound'))
         });
         promiseSentAccound.then(response => response.json())
                           .then(response =>{

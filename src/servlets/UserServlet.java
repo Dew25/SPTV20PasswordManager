@@ -4,6 +4,7 @@
  */
 package servlets;
 
+import entity.AccountData;
 import entity.Role;
 import entity.User;
 import java.io.File;
@@ -20,6 +21,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
+import sessian.AccountDataFacade;
 import sessian.RoleFacade;
 import sessian.UserFacade;
 import sessian.UserRolesFacade;
@@ -37,16 +40,18 @@ import tools.PasswordProtected;
  *
  * @author user
  */
-@WebServlet(name = "AdminServlet", urlPatterns = {
+@WebServlet(name = "UserServlet", urlPatterns = {
     "/addNewAccount",
    
     
     
 })
+@MultipartConfig
 public class UserServlet extends HttpServlet {
     @EJB private UserFacade userFacade;
     @EJB private RoleFacade roleFacade;
     @EJB private UserRolesFacade userRolesFacade;
+    @EJB private AccountDataFacade accountDataFacade;
     
     private PasswordProtected pp = new PasswordProtected();
     
@@ -95,18 +100,21 @@ public class UserServlet extends HttpServlet {
         switch (path) {
             case "/addNewAccount":
                Part part = request.getPart("imageFile");
-               StringBuilder pathToUploadFile = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
-               pathToUploadFile.append("D:\\uploadDir") 
-                            .append(File.separator)
-                            .append(authUser.getId().toString()) //каталог с именем равным идентификатору пользователя
-                            .append(File.separator)
-                            .append(getFileName(part));// формируем путь к сохраняемому файлу
-               File file = new File(pathToUploadFile.toString());
-               file.mkdirs();
+               StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
+               pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
+                                  .append(File.separator)
+                                  .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
+               File mkDirFile = new File(pathToUploadUserDir.toString());
+               mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
+               StringBuilder pathToUploadFile = new StringBuilder(); // Здесь будет путь к загруженному файлу
+               pathToUploadFile.append(pathToUploadUserDir.toString())
+                               .append(File.separator)
+                               .append(getFileName(part));
+               File file = new File(pathToUploadFile.toString()); //Дескриптор для загружаемого файла
                try(InputStream fileContent = part.getInputStream()){ // получаем ресурс - поток данных загружаемого файла
                     Files.copy(
                             fileContent, // поток данных
-                            file.toPath(), // путь сохранения файла
+                            file.toPath(), // путь к сохраняемому файлу
                             StandardCopyOption.REPLACE_EXISTING // опция: пересоздать файл, если такой уже есть на диске.
                     );
                 }
@@ -115,7 +123,22 @@ public class UserServlet extends HttpServlet {
                // 2. получает путь к загруженному файлу для добавления его к сущности
                // 3. получает из запроса url, login, password
                // 4. инициирует сущность и сохраняет ее в базу
-                break;
+        //----- так как данные приходят от формы, то получаем данные из запроса через метод getParameter();   
+               String url = request.getParameter("url");
+               String login = request.getParameter("login");
+               String password = request.getParameter("password");
+               AccountData accountData = new AccountData();
+               accountData.setLogin(login);
+               accountData.setPassword(password);
+               accountData.setUrl(url);
+               accountData.setPathToImage(pathToUploadFile.toString());
+               accountDataFacade.create(accountData);
+               job.add("info", "Добавлен новый аккаунт");
+               job.add("status", true);
+               try (PrintWriter out = response.getWriter()) {
+                  out.println(job.build().toString());
+               }
+               break;
         }
         
     }
