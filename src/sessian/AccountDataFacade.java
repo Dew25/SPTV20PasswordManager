@@ -3,6 +3,7 @@
 package sessian;
 
 import entity.AccountData;
+import entity.User;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -24,9 +25,9 @@ public class AccountDataFacade extends AbstractFacade<AccountData> {
         super(AccountData.class);
     }
 
-    public List<AccountData> findAll(String userId) {
-        return em.createQuery("SELECT ad FROM AccountData ad WHERE ad.id = :userId")
-                .setParameter("userId", userId)
+    public List<AccountData> findAll(User user) {
+        return em.createQuery("SELECT ad FROM AccountData ad WHERE ad.user = :user")
+                .setParameter("user", user)
                 .getResultList();
     }
 

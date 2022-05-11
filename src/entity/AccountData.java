@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 
 @Entity
@@ -17,10 +18,13 @@ public class AccountData implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String caption;
     private String url;
     private String login;
     private String password;
     private String pathToImage;
+    @OneToOne
+    private User user;
 
     public AccountData() {
     }
@@ -114,7 +118,24 @@ public class AccountData implements Serializable {
                 + ", login=" + login 
                 + ", password=" + password 
                 + ", pathToImage=" + pathToImage 
+                + ", user=" + user.getLogin()
                 + '}';
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getCaption() {
+        return caption;
+    }
+
+    public void setCaption(String caption) {
+        this.caption = caption;
     }
     
 }

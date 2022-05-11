@@ -5,13 +5,18 @@
  */
 package servlets;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URLDecoder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static org.apache.jasper.Constants.DEFAULT_BUFFER_SIZE;
 
 /**
  *
@@ -35,7 +40,43 @@ public class InsertFile extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        
+        String filePath = request.getPathInfo();
+        if(null == filePath){
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        File file = new File(URLDecoder.decode(filePath, "UTF-8"));
+        if(!file.exists()){
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        String contentType = getServletContext().getMimeType(file.getName());
+        if(null == contentType){
+            contentType = "application/octet-stream";
+        }
+        response.reset();
+        response.setContentType(contentType);
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
+        response.setHeader("Content-Length", String.valueOf(file.length()));
+        response.setHeader("Content-Disposition", "attachment: filename=\"" + file.getName()+"\"");
+        BufferedInputStream input = null;
+        BufferedOutputStream output = null;
+        try {
+            input = new BufferedInputStream(new FileInputStream(file),DEFAULT_BUFFER_SIZE);
+            output = new BufferedOutputStream(response.getOutputStream(),DEFAULT_BUFFER_SIZE);
+            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+            int length;
+            while((length = input.read(buffer)) > 0){
+                output.write(buffer, 0, length);
+            }
+        } finally {
+            if(output != null){
+                output.close();
+            }
+            if(input != null){
+                input.close();
+            }
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

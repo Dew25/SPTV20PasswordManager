@@ -100,10 +100,27 @@ public class UserServlet extends HttpServlet {
         switch (path) {
             case "/getListAccountData":
                 String userId = request.getParameter("userId");
-                List<AccountData> listAccountData = accountDataFacade.findAll(userId);
+                if(!userId.equals(authUser.getId().toString())){
+                    job.add("listAccountData", "")
+                       .add("status", false)
+                       .add("info", "Вы не тот за кого себя выдаете");
+                    break;
+                }
+                List<AccountData> listAccountData = accountDataFacade.findAll(authUser);
+                if(listAccountData.isEmpty()){
+                    job.add("listAccountData", "");
+                    job.add("status", true).add("info", "Список пуст");
+                    try (PrintWriter out = response.getWriter()) {
+                      out.println(job.build().toString());
+                    } 
+                    break;
+                }
                 AccountDataJsonBuilder adjb = new AccountDataJsonBuilder();
                 job.add("listAccountData", adjb.getJsonArrayAccountData(listAccountData));
-                job.add("statues", true).add("info", "");
+                job.add("status", true).add("info", "");
+                try (PrintWriter out = response.getWriter()) {
+                  out.println(job.build().toString());
+                } 
                 break;
             case "/addNewAccount":
                Part part = request.getPart("imageFile");
@@ -131,14 +148,17 @@ public class UserServlet extends HttpServlet {
                // 3. получает из запроса url, login, password
                // 4. инициирует сущность и сохраняет ее в базу
         //----- так как данные приходят от формы, то получаем данные из запроса через метод getParameter();   
+               String caption = request.getParameter("caption");
                String url = request.getParameter("url");
                String login = request.getParameter("login");
                String password = request.getParameter("password");
                AccountData accountData = new AccountData();
+               accountData.setCaption(caption);
                accountData.setLogin(login);
                accountData.setPassword(password);
                accountData.setUrl(url);
                accountData.setPathToImage(pathToUploadFile.toString());
+               accountData.setUser(authUser);
                accountDataFacade.create(accountData);
                job.add("info", "Добавлен новый аккаунт");
                job.add("status", true);

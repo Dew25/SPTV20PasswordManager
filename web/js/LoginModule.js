@@ -1,6 +1,7 @@
 
 import {checkMenuPanel} from './app.js';
 import {viewModule} from './ViewModule.js';
+import {userModule} from './UserModule.js';
 
 class LoginModule{
 
@@ -27,7 +28,7 @@ class LoginModule{
                sessionStorage.setItem('user',JSON.stringify(response.user));
                sessionStorage.setItem('role',JSON.stringify(response.role));
                checkMenuPanel();
-               document.getElementById('content').innerHTML = "";
+               userModule.getListAccountData();
            }else{
                checkMenuPanel();
                document.getElementById('info').innerHTML = response.info;

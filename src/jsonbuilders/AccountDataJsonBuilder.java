@@ -15,6 +15,7 @@ public class AccountDataJsonBuilder {
     public JsonObject getJsonAccountData(AccountData accountData){
         JsonObjectBuilder job = Json.createObjectBuilder();
         job.add("id", accountData.getId());
+        job.add("caption", accountData.getCaption());
         job.add("url", accountData.getUrl());
         job.add("login", accountData.getLogin());
         job.add("password", accountData.getPassword());

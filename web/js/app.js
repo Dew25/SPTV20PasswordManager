@@ -2,6 +2,7 @@
 import {loginModule} from './LoginModule.js';
 import {viewModule} from './ViewModule.js';
 import {adminModule} from './AdminModule.js';
+import {userModule} from './UserModule.js';
 
 export{checkMenuPanel};
 
@@ -9,6 +10,7 @@ const menu_list_pages = document.getElementById("menu_list_pages");
 menu_list_pages.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleActiveMenu(e.target.id);
+    userModule.getListAccountData();
 })
 const menu_add = document.getElementById("menu_add");
 menu_add.addEventListener("click",(e)=>{

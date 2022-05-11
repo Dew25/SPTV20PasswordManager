@@ -20,14 +20,21 @@ class UserModule{
     }
     getListAccountData(){
         const user = JSON.parse(sessionStorage.getItem('user'));
-        let promiseGetListAccountData = fetch('getListAccountData?userId=${user.id}',{
+        if(user === null){
+            document.getElementById('content').innerHTML = '';
+            document.getElementById('info').innerHTML = 'Авторизуйтесь!';
+            viewModule.showLoginForm();
+            return;
+        }
+        
+        let promiseGetListAccountData = fetch('getListAccountData?userId='+user.id+'&t='+Date.now(),{
             method: 'GET',
         });
         promiseGetListAccountData.then(response => response.json())
                           .then(response =>{
                               if(response.status){
                                   document.getElementById('info').innerHTML = response.info;
-                                  viewModule.showAccountsForm(response.listAccountData);
+                                  viewModule.showListAccountsData(response.listAccountData);
                               }else{
                                   document.getElementById('info').innerHTML = response.info;
                               }

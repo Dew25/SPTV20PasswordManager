@@ -19,6 +19,12 @@ class ViewModule{
                                 <button id="btnLogin" type="submit" class="btn btn-primary m-3">Войти</button>
                                 <p class="info">Нет логина? <a class="text-info" id="registration">Зарегистрируйся</a></p>
                             </div>`;
+        document.getElementById('password').addEventListener('keypress',(e)=>{
+            if(e.key === 'Enter'){
+                e.preventDefault();
+                loginModule.sendCredential();
+            }
+        });
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.addEventListener('click', (e)=>{
             e.preventDefault();
@@ -105,6 +111,10 @@ class ViewModule{
                     <h3 class="card-header text-center my-3">Новая учетная запись</h3>
                     <div class="card-body">
                       <div class="form-group">
+                        <label for="caption" class="form-label mt-4">Заголовок</label>
+                        <input type="text" class="form-control" id="caption" name="caption" placeholder="Заголовок">
+                      </div>
+                      <div class="form-group">
                         <label for="url" class="form-label mt-4">URL</label>
                         <input type="text" class="form-control" id="url" name="url" placeholder="URL">
                       </div>
@@ -131,14 +141,18 @@ class ViewModule{
             userModule.sendNewAccountData();
         });
     }
-    showAccountsForm(listAccountData){
+    showListAccountsData(listAccountData){
+        let content = document.getElementById('content');
         content.innerHTML = "";
+        let list = document.createElement('div');
+        list.classList.add('d-flex');
+        list.classList.add('justify-content-center');
+        content.appendChild(list);
         for(let i = 0; i < listAccountData.length; i++){
-            listAccountData[i]
-            content.innerHTML += 
-            `<div class="card border-primary mb-3 mx-auto" style="max-width: 18rem;">
-                <h3 class="card-header text-center my-3">${listAccountData[i].url}</h3>
-                <a href="accountData.url" target="_blank">
+            list.innerHTML +=  
+            `<div class="card border-primary m-3 p-2" style="max-width: 18rem;">
+                <h3 class="card-header text-center my-3">${listAccountData[i].caption}</h3>
+                <a href="${listAccountData[i].url}" target="_blank">
                     <img src="insertFile/${listAccountData[i].pathToImage}" class="card-img-top" style="max-height: 20rem;" alt="...">
                 </a>
                 <div class="card-body">
