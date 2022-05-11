@@ -1,4 +1,6 @@
 import {viewModule} from './ViewModule.js';
+import {loginModule} from './LoginModule.js';
+import {checkMenuPanel} from './app.js';
 class UserModule{
     sendNewAccountData(){
         let promiseSentAccound = fetch('addNewAccount',{
@@ -37,6 +39,16 @@ class UserModule{
                                   viewModule.showListAccountsData(response.listAccountData);
                               }else{
                                   document.getElementById('info').innerHTML = response.info;
+                                    if(sessionStorage.getItem('token')!== null){
+                                        sessionStorage.removeItem('token');
+                                     }
+                                     if(sessionStorage.getItem('user')!== null){
+                                        sessionStorage.removeItem('user');
+                                     }
+                                     if(sessionStorage.getItem('role')!== null){
+                                        sessionStorage.removeItem('role');
+                                     }
+                                  checkMenuPanel();
                               }
                           })
                           .catch(error => {

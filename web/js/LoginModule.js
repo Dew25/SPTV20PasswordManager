@@ -22,7 +22,7 @@ class LoginModule{
     });
     promise.then(response=> response.json())
        .then(response =>{
-           if(response.auth){
+           if(response.status){
                document.getElementById('info').innerHTML = response.info;
                sessionStorage.setItem('token',JSON.stringify(response.token));
                sessionStorage.setItem('user',JSON.stringify(response.user));
@@ -45,7 +45,7 @@ class LoginModule{
      });
      promise.then(response => response.json())
              .then(response => {
-                 if(!response.auth){
+                 if(!response.status){
                      if(sessionStorage.getItem('token')!== null){
                         sessionStorage.removeItem('token');
                      }

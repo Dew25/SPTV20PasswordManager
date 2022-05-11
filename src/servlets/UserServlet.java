@@ -90,7 +90,7 @@ public class UserServlet extends HttpServlet {
         }
         if(!userRolesFacade.isRole("USER",authUser)){
             job.add("info", "У вас нет необходимых разрешений");
-                    job.add("auth", false);
+                    job.add("status", false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }

@@ -102,7 +102,7 @@ public class LoginServlet extends HttpServlet {
                 User authUser = userFacade.findByLogin(login);
                 if(authUser == null){
                     job.add("info", "Нет такого пользователя");
-                    job.add("auth", false);
+                    job.add("status", false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
@@ -111,7 +111,7 @@ public class LoginServlet extends HttpServlet {
                 password = pp.passwordEncript(password, authUser.getSalt());
                 if(!password.equals(authUser.getPassword())){
                     job.add("info", "Не совпадает пароль");
-                    job.add("auth", false);
+                    job.add("status", false);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(job.build().toString());
                     }
@@ -121,7 +121,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("authUser", authUser);
                 UserJsonBuilder ujb = new UserJsonBuilder();
                 job.add("info", "Вы вошли как "+authUser.getLogin());
-                job.add("auth",true);
+                job.add("status",true);
                 job.add("token", session.getId());
                 job.add("user", ujb.getJsonUser(authUser));
                 job.add("role", new RoleJsonBuilder().getJsonRole(userRolesFacade.getRoleUser(authUser)));
@@ -134,10 +134,13 @@ public class LoginServlet extends HttpServlet {
                 if(session != null){
                     session.invalidate();
                     job.add("info", "Вы вышли");
-                    job.add("auth", false);
-                    try (PrintWriter out = response.getWriter()) {
-                        out.println(job.build().toString());
-                    }
+                    job.add("status", true);
+                }else{
+                    job.add("info", "Вы неавторизованы");
+                    job.add("status", true);
+                }
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
                 }
                 break;
             case "/registration":
