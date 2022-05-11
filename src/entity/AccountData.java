@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import tools.SymmetricCrypt;
 
 
 @Entity
@@ -23,6 +25,8 @@ public class AccountData implements Serializable {
     private String login;
     private String password;
     private String pathToImage;
+    @Transient
+    private final SymmetricCrypt sc = new SymmetricCrypt();
     @OneToOne
     private User user;
 
@@ -54,11 +58,11 @@ public class AccountData implements Serializable {
     }
 
     public String getPassword() {
-        return password;
+        return sc.decrypt(password);
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = sc.encrypt(password);
     }
 
     public String getPathToImage() {
