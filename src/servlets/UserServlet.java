@@ -5,7 +5,6 @@
 package servlets;
 
 import entity.AccountData;
-import entity.Role;
 import entity.User;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -29,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import jsonbuilders.AccountDataJsonBuilder;
-import jsonbuilders.RoleJsonBuilder;
 import jsonbuilders.UserJsonBuilder;
 import sessian.AccountDataFacade;
 import sessian.RoleFacade;
@@ -44,6 +41,7 @@ import tools.PasswordProtected;
 @WebServlet(name = "UserServlet", urlPatterns = {
     "/getListAccountData",
     "/addNewAccount",
+    "/changeProfile",
     
 })
 @MultipartConfig
@@ -123,49 +121,89 @@ public class UserServlet extends HttpServlet {
                 } 
                 break;
             case "/addNewAccount":
-               Part part = request.getPart("imageFile");
-               StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
-               pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
-                                  .append(File.separator)
-                                  .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
-               File mkDirFile = new File(pathToUploadUserDir.toString());
-               mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
-               StringBuilder pathToUploadFile = new StringBuilder(); // Здесь будет путь к загруженному файлу
-               pathToUploadFile.append(pathToUploadUserDir.toString())
-                               .append(File.separator)
-                               .append(getFileName(part));
-               File file = new File(pathToUploadFile.toString()); //Дескриптор для загружаемого файла
-               try(InputStream fileContent = part.getInputStream()){ // получаем ресурс - поток данных загружаемого файла
-                    Files.copy(
-                            fileContent, // поток данных
-                            file.toPath(), // путь к сохраняемому файлу
-                            StandardCopyOption.REPLACE_EXISTING // опция: пересоздать файл, если такой уже есть на диске.
-                    );
-                }
+                Part part = request.getPart("imageFile");
+                StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
+                pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
+                                   .append(File.separator)
+                                   .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
+                File mkDirFile = new File(pathToUploadUserDir.toString());
+                mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
+                StringBuilder pathToUploadFile = new StringBuilder(); // Здесь будет путь к загруженному файлу
+                pathToUploadFile.append(pathToUploadUserDir.toString())
+                                .append(File.separator)
+                                .append(getFileName(part));
+                File file = new File(pathToUploadFile.toString()); //Дескриптор для загружаемого файла
+                try(InputStream fileContent = part.getInputStream()){ // получаем ресурс - поток данных загружаемого файла
+                     Files.copy(
+                             fileContent, // поток данных
+                             file.toPath(), // путь к сохраняемому файлу
+                             StandardCopyOption.REPLACE_EXISTING // опция: пересоздать файл, если такой уже есть на диске.
+                     );
+                 }
                // здесь пишем код, который:
                // 1. создает сущность
                // 2. получает путь к загруженному файлу для добавления его к сущности
                // 3. получает из запроса url, login, password
                // 4. инициирует сущность и сохраняет ее в базу
         //----- так как данные приходят от формы, то получаем данные из запроса через метод getParameter();   
-               String caption = request.getParameter("caption");
-               String url = request.getParameter("url");
-               String login = request.getParameter("login");
-               String password = request.getParameter("password");
-               AccountData accountData = new AccountData();
-               accountData.setCaption(caption);
-               accountData.setLogin(login);
-               accountData.setPassword(password);
-               accountData.setUrl(url);
-               accountData.setPathToImage(pathToUploadFile.toString());
-               accountData.setUser(authUser);
-               accountDataFacade.create(accountData);
-               job.add("info", "Добавлен новый аккаунт");
-               job.add("status", true);
-               try (PrintWriter out = response.getWriter()) {
-                  out.println(job.build().toString());
-               }
-               break;
+                String caption = request.getParameter("caption");
+                String url = request.getParameter("url");
+                String login = request.getParameter("login");
+                String password = request.getParameter("password");
+                AccountData accountData = new AccountData();
+                accountData.setCaption(caption);
+                accountData.setLogin(login);
+                accountData.setPassword(password);
+                accountData.setUrl(url);
+                accountData.setPathToImage(pathToUploadFile.toString());
+                accountData.setUser(authUser);
+                accountDataFacade.create(accountData);
+                job.add("info", "Добавлен новый аккаунт");
+                job.add("status", true);
+                try (PrintWriter out = response.getWriter()) {
+                   out.println(job.build().toString());
+                }
+                break;
+            case "/changeProfile":
+                JsonReader jsonReader = Json.createReader(request.getReader());
+                JsonObject jo = jsonReader.readObject();
+                int id = jo.getInt("id");
+                String newFirstname = jo.getString("newFirstname","");
+                String newLstname = jo.getString("newLstname","");
+                String newPhone = jo.getString("newPhone","");
+                String newPassword1 = jo.getString("newPassword1","");
+                String newPassword2 = jo.getString("newPassword2","");
+                if(!newPassword1.equals(newPassword2)){
+                    job.add("info", "Не совпадают пароли");
+                    job.add("status", false);
+                    try (PrintWriter out = response.getWriter()) {
+                       out.println(job.build().toString());
+                    } 
+                }
+                User newUser = userFacade.find((long)id);
+                if(newUser == null){
+                    job.add("info", "Нет такого пользователя");
+                    job.add("status", false);
+                    try (PrintWriter out = response.getWriter()) {
+                       out.println(job.build().toString());
+                    } 
+                }
+                newUser.setFirstname(newFirstname);
+                newUser.setLastname(newLstname);
+                newUser.setPhone(newPhone);
+                if(!"".equals(newPassword1)){
+                    newUser.setPassword(newPassword1);
+                }
+                userFacade.edit(newUser);
+                session.setAttribute("authUser", newUser);
+                job.add("info", "Профиль пользователя "+newUser.getLogin()+" успешно изменен");
+                job.add("status", true);
+                job.add("user", new UserJsonBuilder().getJsonUser(newUser));
+                try (PrintWriter out = response.getWriter()) {
+                   out.println(job.build().toString());
+                } 
+                
+                break;
         }
         
     }

@@ -162,6 +162,56 @@ class ViewModule{
             </div>`
         }
     }
+    showProfileForm(){
+        let authUser = JSON.parse(sessionStorage.getItem('user'));
+        const content = document.getElementById('content');
+        content.innerHTML =`<div class="card border-primary my-5 mx-auto" style="max-width: 30rem;">
+                                <h3 class="card-header text-center">Изменение профиля пользователя</h3>
+                                <div class="card-body">
+                                  <div class="form-group">
+                                    <label for="firstname" class="form-label mt-4">Имя</label>
+                                    <input type="text" class="form-control" id="firstname" placeholder="Имя" value="${authUser.firstname}">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="lastname" class="form-label mt-4">Фамилия</label>
+                                    <input type="text" class="form-control" id="lastname" placeholder="Фамилия"  value="${authUser.lastname}">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="phone" class="form-label mt-4">Телефон</label>
+                                    <input type="text" class="form-control" id="phone" placeholder="Телефон"  value="${authUser.phone}">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="login" class="form-label mt-4">Логин</label>
+                                    <input type="text" class="form-control" id="login" placeholder="Логин" readonly value="${authUser.login}">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="password1" class="form-label mt-4">Пароль</label>
+                                    <input type="password" class="form-control" id="password1" placeholder="Пароль">
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="password2" class="form-label mt-4">Повторить пароль</label>
+                                    <input type="password" class="form-control" id="password2" placeholder="Повторить пароль">
+                                  </div>
+                                </div>
+                                <button type="submit" id="btn_change_profile" class="btn btn-primary m-3">Изменить профиль</button>
+                            </div>`;
+        const btnRegistration = document.getElementById('btn_change_profile');
+        btnRegistration.addEventListener('click', (e)=>{
+            e.preventDefault();
+            userModule.changeProfile();
+        })
+    }
+    showAboutAs(){
+        const content = document.getElementById('content');
+        content.innerHTML =`<div class="card border-primary my-5 mx-auto" style="max-width: 30rem;">
+                                <h3 class="card-header text-center">Наша программа сохранения паролей для Вас!!!</h3>
+                                <div class="card-body">
+                                        Сохраняйте скриншоты страниц и вы быстро найдете сайт по виду<br><br>
+                                        ВАЖНО!!!<br>Пароли для сайтов шифруются при запоминании и прочесть их можете только Вы!<br><br>
+                                        Вы также можете изменить данные своего профиля, все кроме логина. Если пароли оставить пустыми, они не поменяются.
+                                </div>
+                            </div>`;
+    }
 }
 const viewModule = new ViewModule();
 export {viewModule};

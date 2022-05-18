@@ -23,6 +23,7 @@ const menu_profile = document.getElementById("menu_profile");
 menu_profile.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleActiveMenu(e.target.id);
+    viewModule.showProfileForm();
 });
 const menu_admin_panel = document.getElementById("menu_admin_panel");
 menu_admin_panel.addEventListener("click",(e)=>{
@@ -34,6 +35,7 @@ const menu_about = document.getElementById("menu_about");
 menu_about.addEventListener("click",(e)=>{
     e.preventDefault();
     toggleActiveMenu(e.target.id);
+    viewModule.showAboutAs();
 });
 const menu_login = document.getElementById("menu_login");
 menu_login.addEventListener("click", (e) => {
@@ -81,6 +83,9 @@ function checkMenuPanel(){
         if(!document.getElementById('menu_login').classList.contains('d-none')){
             document.getElementById("menu_login").classList.remove('d-none');//Показать вход
         }
+        if(!document.getElementById('search_form_menu').classList.contains('d-none')){
+            document.getElementById("search_form_menu").classList.add('d-none');//Показать вход
+        }
         return;
     }
     role = JSON.parse(role);
@@ -100,6 +105,9 @@ function checkMenuPanel(){
         if(!document.getElementById('menu_login').classList.contains('d-none')){
             document.getElementById("menu_login").classList.add('d-none');//Спрятать вход
         }
+        if(document.getElementById('search_form_menu').classList.contains('d-none')){
+            document.getElementById("search_form_menu").classList.remove('d-none');//Показать вход
+        }
         return;
     }
     if(role.roleName === 'ADMINISTRATOR'){
@@ -117,6 +125,9 @@ function checkMenuPanel(){
         }
         if(!document.getElementById('menu_login').classList.contains('d-none')){
             document.getElementById("menu_login").classList.add('d-none');//Спрятать вход
+        }
+        if(document.getElementById('search_form_menu').classList.contains('d-none')){
+            document.getElementById("search_form_menu").classList.remove('d-none');//Показать вход
         }
         return;
     }

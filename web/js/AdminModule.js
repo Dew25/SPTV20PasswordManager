@@ -69,6 +69,8 @@ class AdminModule{
                                       return;
                                   }
                                   adminModule.getUsersMap();
+                              }else{
+                                  document.getElementById('info').innerHTML = response.info;
                               }
                           })
                           .catch(error => {

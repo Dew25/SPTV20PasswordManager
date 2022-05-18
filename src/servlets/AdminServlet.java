@@ -9,6 +9,7 @@ import entity.Role;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
@@ -102,6 +103,14 @@ public class AdminServlet extends HttpServlet {
                     String userId = jo.getString("userId","");
                     String roleId = jo.getString("roleId","");
                     User user = userFacade.find(Long.parseLong(userId));
+                    if("admin".equals(user.getLogin())){
+                        job.add("status",false);
+                        job.add("info", "Этому пользователю изменить роль нет возможности");
+                        try (PrintWriter out = response.getWriter()) {
+                            out.println(job.build().toString());
+                        }
+                        break;
+                    }
                     Role role = roleFacade.find(Long.parseLong(roleId));
                     userRolesFacade.setUserRole(user,role);
                     job.add("status",true);
