@@ -42,6 +42,8 @@ import tools.PasswordProtected;
     "/getListAccountData",
     "/addNewAccount",
     "/changeProfile",
+    "/getListAccounts",
+    "/addChangeAccount",
     
 })
 @MultipartConfig
@@ -51,7 +53,7 @@ public class UserServlet extends HttpServlet {
     @EJB private UserRolesFacade userRolesFacade;
     @EJB private AccountDataFacade accountDataFacade;
     
-    private PasswordProtected pp = new PasswordProtected();
+    private final PasswordProtected pp = new PasswordProtected();
     
     
     /**
@@ -121,25 +123,8 @@ public class UserServlet extends HttpServlet {
                 } 
                 break;
             case "/addNewAccount":
-                Part part = request.getPart("imageFile");
-                StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
-                pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
-                                   .append(File.separator)
-                                   .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
-                File mkDirFile = new File(pathToUploadUserDir.toString());
-                mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
-                StringBuilder pathToUploadFile = new StringBuilder(); // Здесь будет путь к загруженному файлу
-                pathToUploadFile.append(pathToUploadUserDir.toString())
-                                .append(File.separator)
-                                .append(getFileName(part));
-                File file = new File(pathToUploadFile.toString()); //Дескриптор для загружаемого файла
-                try(InputStream fileContent = part.getInputStream()){ // получаем ресурс - поток данных загружаемого файла
-                     Files.copy(
-                             fileContent, // поток данных
-                             file.toPath(), // путь к сохраняемому файлу
-                             StandardCopyOption.REPLACE_EXISTING // опция: пересоздать файл, если такой уже есть на диске.
-                     );
-                 }
+                String pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
+                
                // здесь пишем код, который:
                // 1. создает сущность
                // 2. получает путь к загруженному файлу для добавления его к сущности
@@ -155,7 +140,7 @@ public class UserServlet extends HttpServlet {
                 accountData.setLogin(login);
                 accountData.setPassword(password);
                 accountData.setUrl(url);
-                accountData.setPathToImage(pathToUploadFile.toString());
+                accountData.setPathToImage(pathToUploadFile);
                 accountData.setUser(authUser);
                 accountDataFacade.create(accountData);
                 job.add("info", "Добавлен новый аккаунт");
@@ -164,10 +149,31 @@ public class UserServlet extends HttpServlet {
                    out.println(job.build().toString());
                 }
                 break;
+            case "/addChangeAccount":
+                pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
+                String id = request.getParameter("id");
+                caption = request.getParameter("caption");
+                url = request.getParameter("url");
+                login = request.getParameter("login");
+                password = request.getParameter("password");
+                accountData = accountDataFacade.find(Long.parseLong(id));
+                accountData.setCaption(caption);
+                accountData.setLogin(login);
+                accountData.setPassword(password);
+                accountData.setUrl(url);
+                accountData.setPathToImage(pathToUploadFile);
+                accountData.setUser(authUser);
+                accountDataFacade.edit(accountData);
+                job.add("info", "Аккаунт изменен успешно");
+                job.add("status", true);
+                try (PrintWriter out = response.getWriter()) {
+                   out.println(job.build().toString());
+                }
+                break;
             case "/changeProfile":
                 JsonReader jsonReader = Json.createReader(request.getReader());
                 JsonObject jo = jsonReader.readObject();
-                int id = jo.getInt("id");
+                int uid = jo.getInt("id");
                 String newFirstname = jo.getString("newFirstname","");
                 String newLstname = jo.getString("newLstname","");
                 String newPhone = jo.getString("newPhone","");
@@ -180,7 +186,7 @@ public class UserServlet extends HttpServlet {
                        out.println(job.build().toString());
                     } 
                 }
-                User newUser = userFacade.find((long)id);
+                User newUser = userFacade.find((long)uid);
                 if(newUser == null){
                     job.add("info", "Нет такого пользователя");
                     job.add("status", false);
@@ -204,6 +210,16 @@ public class UserServlet extends HttpServlet {
                 } 
                 
                 break;
+            case "/getListAccounts":
+                listAccountData = accountDataFacade.findAll(authUser);
+                AccountDataJsonBuilder ajb = new AccountDataJsonBuilder();
+                job.add("status", true);
+                job.add("info", "");
+                job.add("accountData", ajb.getJsonArrayAccountData(listAccountData));
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+                break;
         }
         
     }
@@ -220,6 +236,28 @@ public class UserServlet extends HttpServlet {
         return null;
     }
 
+    private String uploadImage(Part part, User authUser) throws IOException {
+        
+        StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
+        pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
+                           .append(File.separator)
+                           .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
+        File mkDirFile = new File(pathToUploadUserDir.toString());
+        mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
+        StringBuilder pathToUploadFile = new StringBuilder(); // Здесь будет путь к загруженному файлу
+        pathToUploadFile.append(pathToUploadUserDir.toString())
+                        .append(File.separator)
+                        .append(getFileName(part));
+        File file = new File(pathToUploadFile.toString()); //Дескриптор для загружаемого файла
+        try(InputStream fileContent = part.getInputStream()){ // получаем ресурс - поток данных загружаемого файла
+             Files.copy(
+                     fileContent, // поток данных
+                     file.toPath(), // путь к сохраняемому файлу
+                     StandardCopyOption.REPLACE_EXISTING // опция: пересоздать файл, если такой уже есть на диске.
+             );
+         }
+        return pathToUploadFile.toString();
+    }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -258,5 +296,6 @@ public class UserServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
 
 }

@@ -106,12 +106,14 @@ class ViewModule{
         document.getElementById("info").innerHTML = '';
         const content = document.getElementById('content');
         content.innerHTML = 
-            `<div class="card border-primary mb-3 mx-auto" style="max-width: 40rem;">
-                <form id="form_add_accound">
-                    <h3 class="card-header text-center my-3">Новая учетная запись</h3>
+            `<div class="d-flex flex-column">
+              <div class="card border-primary mx-auto" style="max-width: 40rem;">
+                <form id="form_add_account">
+                    <h3 class="card-header text-center my-3" id="title_page">Новая страница</h3>
                     <div class="card-body">
                       <div class="form-group">
                         <label for="caption" class="form-label mt-4">Заголовок</label>
+                        <input type="hidden" id="id" name="id">
                         <input type="text" class="form-control" id="caption" name="caption" placeholder="Заголовок">
                       </div>
                       <div class="form-group">
@@ -130,15 +132,43 @@ class ViewModule{
                         <label for="imageFile" class="form-label mt-4">Изображение</label>
                         <input class="form-control" type="file" id="image_file" name="imageFile">
                       </div>  
+                      <div id="list_scrinshots" class="form-group mb-4 d-none">
+                        <label for="list_covers" class=" col-form-label mt-2">Список загруженных скриншотов</label>
+                        <select class="form-select form-control-plaintext" id="scrinshot_id" name="scrinshotId"></select>
+                      </div>
                       <div class="w-100 text-center my-3">
                         <button type="submit" class="btn btn-primary my-3" id="btn_add_account">Добавить</button>
+                        <button type="submit" class="btn btn-primary my-3 d-none" id="btn_change_account">Изменить</button>
                       </div>
                     </div>
                 </form>
+              </div>
+              <div class="card mx-auto my-2" style="max-width: 40rem;">
+                <div class="card-body">
+                  <h3 class="card-body text-center">Изменить данные страницы</h3>
+                  <select  id="changeAccountDataId" style="min-width: 30rem"></select>
+                </div>
+              </div>
             </div>`;
-        document.getElementById('form_add_accound').addEventListener('submit',e=>{
+        userModule.insertAcoountOptions();
+        document.getElementById('btn_add_account').addEventListener('click',e=>{
             e.preventDefault();
             userModule.sendNewAccountData();
+        });
+        document.getElementById('btn_change_account').addEventListener('click',e=>{
+            e.preventDefault();
+            userModule.sendChangeAccountData();
+            document.getElementById('title_page').innerHTML='Новая страница';
+            document.getElementById('btn_add_account').classList.remove('d-none');
+            document.getElementById('btn_change_account').classList.add('d-none');
+        });
+        
+        document.getElementById('changeAccountDataId').addEventListener('change',e=>{
+            e.preventDefault();
+            document.getElementById('title_page').innerHTML='Изменить данные'; //изменяем заголовок
+            document.getElementById('btn_add_account').classList.add('d-none');//прячем кнопку добавить
+            document.getElementById('btn_change_account').classList.remove('d-none');//показываем кнопку изменить
+            userModule.insertChangeAccountData(document.getElementById('changeAccountDataId').value); //заполняем форму данными выбранного аккаунта
         });
     }
     showListAccountsData(listAccountData){
