@@ -10,11 +10,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -39,11 +45,11 @@ import tools.PasswordProtected;
  * @author user
  */
 @WebServlet(name = "UserServlet", urlPatterns = {
-    "/getListAccountData",
+    "/getAccountData",
     "/addNewAccount",
     "/changeProfile",
     "/getListAccounts",
-    "/addChangeAccount",
+    "/updateAccountData",
     
 })
 @MultipartConfig
@@ -52,7 +58,7 @@ public class UserServlet extends HttpServlet {
     @EJB private RoleFacade roleFacade;
     @EJB private UserRolesFacade userRolesFacade;
     @EJB private AccountDataFacade accountDataFacade;
-    
+    String pathToUploadDir = "D:\\uploadDir\\SPTV20PasswordManager\\";
     private final PasswordProtected pp = new PasswordProtected();
     
     
@@ -98,32 +104,17 @@ public class UserServlet extends HttpServlet {
         }
         String path = request.getServletPath();
         switch (path) {
-            case "/getListAccountData":
-                String userId = request.getParameter("userId");
-                if(!userId.equals(authUser.getId().toString())){
-                    job.add("listAccountData", "")
-                       .add("status", false)
-                       .add("info", "Вы не тот за кого себя выдаете");
-                    break;
-                }
-                List<AccountData> listAccountData = accountDataFacade.findAll(authUser);
-                if(listAccountData.isEmpty()){
-                    job.add("listAccountData", "");
-                    job.add("status", true).add("info", "Список пуст");
-                    try (PrintWriter out = response.getWriter()) {
-                      out.println(job.build().toString());
-                    } 
-                    break;
-                }
-                AccountDataJsonBuilder adjb = new AccountDataJsonBuilder();
-                job.add("listAccountData", adjb.getJsonArrayAccountData(listAccountData));
+            case "/getAccountData":
+                String changeAccountDataId = request.getParameter("changeAccountDataId");
+                AccountData accountData = accountDataFacade.find(Long.parseLong(changeAccountDataId));
+                job.add("changeAccountData", new AccountDataJsonBuilder().getJsonAccountData(accountData));
+                job.add("scrinshorts", getScrinshortsFileNamesWithSelected(authUser,accountData.getPathToImage()));
                 job.add("status", true).add("info", "");
                 try (PrintWriter out = response.getWriter()) {
                   out.println(job.build().toString());
                 } 
                 break;
             case "/addNewAccount":
-                String pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
                 
                // здесь пишем код, который:
                // 1. создает сущность
@@ -135,11 +126,25 @@ public class UserServlet extends HttpServlet {
                 String url = request.getParameter("url");
                 String login = request.getParameter("login");
                 String password = request.getParameter("password");
-                AccountData accountData = new AccountData();
+                accountData = new AccountData();
                 accountData.setCaption(caption);
                 accountData.setLogin(login);
                 accountData.setPassword(password);
                 accountData.setUrl(url);
+                String pathToUploadFile;
+                try {
+                    pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
+                } catch (Exception e) {
+                    pathToUploadFile = request.getParameter("scrinshortId");
+                }
+                if(pathToUploadFile == null){
+                    job.add("info", "Не выбран файл");
+                    job.add("status", false);
+                    try (PrintWriter out = response.getWriter()) {
+                       out.println(job.build().toString());
+                    }
+                break;
+                }
                 accountData.setPathToImage(pathToUploadFile);
                 accountData.setUser(authUser);
                 accountDataFacade.create(accountData);
@@ -149,8 +154,7 @@ public class UserServlet extends HttpServlet {
                    out.println(job.build().toString());
                 }
                 break;
-            case "/addChangeAccount":
-                pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
+            case "/updateAccountData":
                 String id = request.getParameter("id");
                 caption = request.getParameter("caption");
                 url = request.getParameter("url");
@@ -161,6 +165,19 @@ public class UserServlet extends HttpServlet {
                 accountData.setLogin(login);
                 accountData.setPassword(password);
                 accountData.setUrl(url);
+                 try {
+                    pathToUploadFile = uploadImage(request.getPart("imageFile"),authUser);
+                } catch (Exception e) {
+                    pathToUploadFile = request.getParameter("scrinshortId");
+                }
+                if(pathToUploadFile == null){
+                    job.add("info", "Не выбран файл");
+                    job.add("status", false);
+                    try (PrintWriter out = response.getWriter()) {
+                       out.println(job.build().toString());
+                    }
+                break;
+                }
                 accountData.setPathToImage(pathToUploadFile);
                 accountData.setUser(authUser);
                 accountDataFacade.edit(accountData);
@@ -211,11 +228,11 @@ public class UserServlet extends HttpServlet {
                 
                 break;
             case "/getListAccounts":
-                listAccountData = accountDataFacade.findAll(authUser);
+                List<AccountData> listAccountData = accountDataFacade.findAll(authUser);
                 AccountDataJsonBuilder ajb = new AccountDataJsonBuilder();
                 job.add("status", true);
                 job.add("info", "");
-                job.add("accountData", ajb.getJsonArrayAccountData(listAccountData));
+                job.add("listAccountData", ajb.getJsonArrayAccountData(listAccountData));
                 try (PrintWriter out = response.getWriter()) {
                     out.println(job.build().toString());
                 }
@@ -239,8 +256,7 @@ public class UserServlet extends HttpServlet {
     private String uploadImage(Part part, User authUser) throws IOException {
         
         StringBuilder pathToUploadUserDir = new StringBuilder(); // создаем пустой экземпляр класса StringBuilder
-        pathToUploadUserDir.append("D:\\uploadDir\\SPTV20PasswordManager") 
-                           .append(File.separator)
+        pathToUploadUserDir.append(pathToUploadUserDir)
                            .append(authUser.getId().toString()); //каталог с именем равным идентификатору пользователя
         File mkDirFile = new File(pathToUploadUserDir.toString());
         mkDirFile.mkdirs(); //Создаем путь к каталогу, где хранятся изображения для конкретного пользователя
@@ -258,6 +274,24 @@ public class UserServlet extends HttpServlet {
          }
         return pathToUploadFile.toString();
     }
+    private JsonArray getScrinshortsFileNamesWithSelected(User authUser,String selectedFileName) {
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        JsonObjectBuilder jsonFileNameObject = Json.createObjectBuilder();
+        
+        File fileDir = new File(pathToUploadDir);
+        for (final File fileEntry : fileDir.listFiles()) {
+            if (!fileEntry.isDirectory()) {
+                String pathToFile = pathToUploadDir+fileEntry.getName();
+                if(pathToFile.equals(selectedFileName)){
+                   jab.add(jsonFileNameObject.add("fileName",fileEntry.getName()).add("selected",true));
+                }else{
+                    jab.add(jsonFileNameObject.add("fileName",fileEntry.getName()).add("selected",false));
+                }
+            }
+        }
+        return jab.build();
+    }
+ 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -296,6 +330,7 @@ public class UserServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
 
 
 }

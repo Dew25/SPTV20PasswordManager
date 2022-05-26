@@ -108,7 +108,7 @@ class ViewModule{
         content.innerHTML = 
             `<div class="d-flex flex-column">
               <div class="card border-primary mx-auto" style="max-width: 40rem;">
-                <form id="form_add_account">
+                <form id="form_account">
                     <h3 class="card-header text-center my-3" id="title_page">Новая страница</h3>
                     <div class="card-body">
                       <div class="form-group">
@@ -134,7 +134,7 @@ class ViewModule{
                       </div>  
                       <div id="list_scrinshots" class="form-group mb-4 d-none">
                         <label for="list_covers" class=" col-form-label mt-2">Список загруженных скриншотов</label>
-                        <select class="form-select form-control-plaintext" id="scrinshot_id" name="scrinshotId"></select>
+                        <select class="form-select form-control-plaintext" id="scrinshort_id" name="scrinshortId"></select>
                       </div>
                       <div class="w-100 text-center my-3">
                         <button type="submit" class="btn btn-primary my-3" id="btn_add_account">Добавить</button>
@@ -146,29 +146,35 @@ class ViewModule{
               <div class="card mx-auto my-2" style="max-width: 40rem;">
                 <div class="card-body">
                   <h3 class="card-body text-center">Изменить данные страницы</h3>
-                  <select  id="changeAccountDataId" style="min-width: 30rem"></select>
+                  <select  id="change_account_data_id" style="min-width: 30rem"></select>
                 </div>
               </div>
             </div>`;
         userModule.insertAcoountOptions();
-        document.getElementById('btn_add_account').addEventListener('click',e=>{
+        document.getElementById('form_account').addEventListener('submit',e=>{
             e.preventDefault();
-            userModule.sendNewAccountData();
-        });
-        document.getElementById('btn_change_account').addEventListener('click',e=>{
-            e.preventDefault();
-            userModule.sendChangeAccountData();
-            document.getElementById('title_page').innerHTML='Новая страница';
-            document.getElementById('btn_add_account').classList.remove('d-none');
-            document.getElementById('btn_change_account').classList.add('d-none');
+            if(!document.getElementById('btn_add_account').classList.contains('d-none')){
+                //кнопка добавить
+                userModule.sendNewAccountData();
+            }else{
+                //кнопка изменить
+                userModule.sendChangeAccountData();
+                document.getElementById('title_page').innerHTML='Новая страница';
+                document.getElementById('btn_add_account').classList.remove('d-none');
+                document.getElementById('btn_change_account').classList.add('d-none');
+                document.getElementById('list_scrinshots').classList.add('d-none');
+            }
+            
         });
         
-        document.getElementById('changeAccountDataId').addEventListener('change',e=>{
+        document.getElementById('change_account_data_id').addEventListener('change',e=>{
             e.preventDefault();
             document.getElementById('title_page').innerHTML='Изменить данные'; //изменяем заголовок
             document.getElementById('btn_add_account').classList.add('d-none');//прячем кнопку добавить
             document.getElementById('btn_change_account').classList.remove('d-none');//показываем кнопку изменить
-            userModule.insertChangeAccountData(document.getElementById('changeAccountDataId').value); //заполняем форму данными выбранного аккаунта
+            document.getElementById('list_scrinshots').classList.remove('d-none');//показываем выпадающий список со скриншотами
+            const selectSelection = document.getElementById('change_account_data_id').value;
+            userModule.insertChangeAccountData(selectSelection); //заполняем форму данными выбранного аккаунта
         });
     }
     showListAccountsData(listAccountData){

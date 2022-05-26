@@ -28,7 +28,7 @@ class LoginModule{
                sessionStorage.setItem('user',JSON.stringify(response.user));
                sessionStorage.setItem('role',JSON.stringify(response.role));
                checkMenuPanel();
-               userModule.getListAccountData();
+               userModule.getListAccounts();
            }else{
                checkMenuPanel();
                document.getElementById('info').innerHTML = response.info;

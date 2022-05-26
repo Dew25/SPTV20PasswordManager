@@ -3,45 +3,49 @@ class UserModule{
     sendNewAccountData(){
         let promiseSentAccound = fetch('addNewAccount',{
             method: 'POST',
-            body: new FormData(document.getElementById('form_add_accound'))
+            credentials: 'include',
+            body: new FormData(document.getElementById('form_account'))
         });
         promiseSentAccound.then(response => response.json())
                           .then(response =>{
                               if(response.status){
                                   document.getElementById('info').innerHTML = response.info;
-                                  userModule.getListAccountData();
+                                  userModule.getListAccounts();
                               }else{
                                   document.getElementById('info').innerHTML = response.info;
                               }
                           })
                           .catch(error => {
-                              document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountForm)"+error;
+                              document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountData)"+error;
                           })
     }
     sendChangeAccountData(){
-        let promiseSentAccound = fetch('addChangeAccount',{
+        let promiseSentAccound = fetch('updateAccountData',{
             method: 'POST',
-            body: new FormData(document.getElementById('form_add_accound'))
+            credentials: 'include',
+            body: new FormData(document.getElementById('form_account'))
         });
         promiseSentAccound.then(response => response.json())
                           .then(response =>{
                               if(response.status){
                                   document.getElementById('info').innerHTML = response.info;
-                                  userModule.getListAccountData();
+                                  userModule.getListAccounts();
                               }else{
                                   document.getElementById('info').innerHTML = response.info;
                               }
                           })
                           .catch(error => {
-                              document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountForm)"+error;
+                              document.getElementById('info').innerHTML = "Ошибка сервера sendChangeAccountData:"+error;
                           })
         
     }
     insertChangeAccountData(changeAccountDataId){
-       
-        
-        let promiseGetChangeAccountData = fetch('getListAccountData?accountDataId='+changeAccountDataId,{
+        let promiseGetChangeAccountData = fetch('getAccountData?changeAccountDataId='+changeAccountDataId,{
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json;charset:utf8'
+            },
+            credentials: 'include'
         });
         promiseGetChangeAccountData.then(response => response.json())
                           .then(response =>{
@@ -53,13 +57,16 @@ class UserModule{
                                   document.getElementById('login').value=response.changeAccountData.login;
                                   document.getElementById('login').readeOnly=true; //логин менять нельзя
                                   document.getElementById('password').value=''; //пароль пустой - значит не меняется
-                                  let select = document.getElementById('list_scrinshots'); // заполняем список скриншотов
+                                  let select = document.getElementById('scrinshort_id'); // заполняем список скриншотов
                                   select.options.length=0; //очищаем, если там что то есть.
-                                  for(let i=0;i< response.sctinshots.length; i++){
-                                      let option = document.createElement('ogtion');
-                                      option.text = response.scrinshots[i].name;
-                                      option.value = response.scrinshots[i].name;
+                                  for(let i=0;i< response.scrinshorts.length; i++){
+                                      let option = document.createElement('option');
+                                      option.text = response.scrinshorts[i].fileName;
+                                      option.value = response.scrinshorts[i].fileName;
                                       select.options.add(option);
+                                      if(response.scrinshorts[i].selected){
+                                          select.value = response.scrinshorts[i].fileName;
+                                      }
                                   }
                                   //делаем видимым список
                                   document.getElementById('list_scrinshots').classList.remove('d-none');
@@ -71,7 +78,7 @@ class UserModule{
                               document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountForm)"+error;
                           })
     }
-    getListAccountData(){
+    getListAccounts(){
         const user = JSON.parse(sessionStorage.getItem('user'));
         if(user === null){
             document.getElementById('content').innerHTML = '';
@@ -80,8 +87,11 @@ class UserModule{
             return;
         }
         
-        let promiseGetListAccountData = fetch('getListAccountData?userId='+user.id+'&t='+Date.now(),{
+        let promiseGetListAccountData = fetch('getListAccounts?userId='+user.id+'&t='+Date.now(),{
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json;charset:utf8'
+            },
         });
         promiseGetListAccountData.then(response => response.json())
                           .then(response =>{
@@ -93,7 +103,7 @@ class UserModule{
                               }
                           })
                           .catch(error => {
-                              document.getElementById('info').innerHTML = "Ошибка сервера (showAddAccountForm)"+error;
+                              document.getElementById('info').innerHTML = "Ошибка сервера getListAccountData: "+error;
                           })
     }
     changeProfile(){
@@ -134,7 +144,7 @@ class UserModule{
                               }
                           })
                           .catch(error => {
-                              document.getElementById('info').innerHTML = "Ошибка сервера (changeProfile)"+error;
+                              document.getElementById('info').innerHTML = "Ошибка сервера changeProfile: "+error;
                           })
     }
     insertAcoountOptions(){
@@ -148,22 +158,23 @@ class UserModule{
         promiseListAccounts.then(response => response.json())
                     .then(response =>{
                         if(response.status){
-                            let select = document.getElementById('changeAccountDataId');
+                            let select = document.getElementById('change_account_data_id');
                             select.options.length = 0;
                             let option = document.createElement('option');
                             option.text = 'Выберите страницу для изменения';
-                            option.value = '#';
+                            option.value = '';
                             select.options.add(option);
-                            for (let i=0; i<response.accountData.length;i++) {
+                            for (let i=0; i<response.listAccountData.length;i++) {
                                 option = document.createElement('option');
-                                option.text = response.accountData[i].caption;
-                                option.value = response.accountData[i].id;
+                                option.text = response.listAccountData[i].caption;
+                                option.value = response.listAccountData[i].id;
                                 select.options.add(option);
                             }
+                            
                         }
                     })
                     .catch(error => {
-                        document.getElementById('info').innerHTML="Ошибка insertAuthorOptions: "+error;
+                        document.getElementById('info').innerHTML="Ошибка insertAcoountOptions: "+error;
                     });
     }
 }
